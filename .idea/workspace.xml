@@ -57,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/src/components/gui/gui.jsx">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1425">
-              <caret line="75" column="22" lean-forward="true" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
+              <caret line="75" column="22" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -283,16 +283,15 @@
       <workItem from="1531124573891" duration="3012000" />
       <workItem from="1531128616604" duration="3138000" />
       <workItem from="1531133727454" duration="9413000" />
-      <workItem from="1531184994216" duration="17718000" />
+      <workItem from="1531184994216" duration="18312000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58609000" />
+    <option name="totallyTimeSpent" value="59203000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="24" y="47" width="1343" height="678" extended-state="1" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18237548" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -679,7 +678,7 @@
     <entry file="file://$PROJECT_DIR$/src/components/gui/gui.jsx">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1425">
-          <caret line="75" column="22" lean-forward="true" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
+          <caret line="75" column="22" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
