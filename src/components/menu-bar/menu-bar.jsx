@@ -10,6 +10,7 @@ import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import LanguageSelector from '../../containers/language-selector.jsx';
 import ProjectLoader from '../../containers/project-loader.jsx';
+import Arduino from '../../containers/Arduino.jsx';
 import Menu from '../../containers/menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectSaver from '../../containers/project-saver.jsx';
@@ -19,6 +20,9 @@ import {setPlayer} from '../../reducers/mode';
 import {
     openFileMenu,
     closeFileMenu,
+    openHardwareMenu,
+    closeHardwareMenu,
+    hardwareMenuOpen,
     fileMenuOpen,
     openEditMenu,
     closeEditMenu,
@@ -174,6 +178,8 @@ const MenuBar = props => (
 
                     </MenuBarItemTooltip>
                 </div>
+
+                {/*fengedian */}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
                         [styles.active]: props.fileMenuOpen
@@ -248,55 +254,86 @@ const MenuBar = props => (
                         </MenuSection>
                     </MenuBarMenu>
                 </div>
+                {/*fengdian  hahah */}
+                <div
+                className={classNames(styles.menuBarItem, styles.hoverable, {
+                    [styles.active]: props.editMenuOpen
+                })}
+                onMouseUp={props.onClickEdit}
+            >
+                <div className={classNames(styles.editMenu)}>
+                    <FormattedMessage
+                        defaultMessage="Edit"
+                        description="Text for edit dropdown menu"
+                        id="gui.menuBar.edit"
+                    />
+                </div>
+                <MenuBarMenu
+                    open={props.editMenuOpen}
+                    onRequestClose={props.onRequestCloseEdit}
+                >
+                    <MenuItemTooltip id="undo">
+                        <MenuItem>
+                            <FormattedMessage
+                                defaultMessage="Undo"
+                                description="Menu bar item for undoing"
+                                id="gui.menuBar.undo"
+                            />
+                        </MenuItem>
+                    </MenuItemTooltip>
+                    <MenuItemTooltip id="redo">
+                        <MenuItem>
+                            <FormattedMessage
+                                defaultMessage="Redo"
+                                description="Menu bar item for redoing"
+                                id="gui.menuBar.redo"
+                            />
+                        </MenuItem>
+                    </MenuItemTooltip>
+                    <MenuSection>
+                        <MenuItemTooltip id="turbo">
+                            <MenuItem>
+                                <FormattedMessage
+                                    defaultMessage="Turbo mode"
+                                    description="Menu bar item for toggling turbo mode"
+                                    id="gui.menuBar.turboMode"
+                                />
+                            </MenuItem>
+                        </MenuItemTooltip>
+                    </MenuSection>
+                </MenuBarMenu>
+                </div>
+
+
+
+                {/*fengedian  */}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.editMenuOpen
+                        [styles.active]: props.hardwareMenuOpen                      //wlq
                     })}
-                    onMouseUp={props.onClickEdit}
+                    onMouseUp={props.onClickHardware}
                 >
                     <div className={classNames(styles.editMenu)}>
-                        <FormattedMessage
-                            defaultMessage="Edit"
-                            description="Text for edit dropdown menu"
-                            id="gui.menuBar.edit"
-                        />
+                        Hardware
                     </div>
                     <MenuBarMenu
-                        open={props.editMenuOpen}
-                        onRequestClose={props.onRequestCloseEdit}
+                        open={props.hardwareMenuOpen}
+                        onRequestClose={props.onRequestCloseHardware}
                     >
-                        <MenuItemTooltip id="undo">
-                            <MenuItem>
-                                <FormattedMessage
-                                    defaultMessage="Undo"
-                                    description="Menu bar item for undoing"
-                                    id="gui.menuBar.undo"
-                                />
+                        <MenuItemTooltip id="Arduino">
+                            <MenuItem
+                                onClick={Arduino}
+
+                            >
+                              Arduino
                             </MenuItem>
                         </MenuItemTooltip>
-                        <MenuItemTooltip id="redo">
-                            <MenuItem>
-                                <FormattedMessage
-                                    defaultMessage="Redo"
-                                    description="Menu bar item for redoing"
-                                    id="gui.menuBar.redo"
-                                />
-                            </MenuItem>
-                        </MenuItemTooltip>
-                        <MenuSection>
-                            <MenuItemTooltip id="turbo">
-                                <MenuItem>
-                                    <FormattedMessage
-                                        defaultMessage="Turbo mode"
-                                        description="Menu bar item for toggling turbo mode"
-                                        id="gui.menuBar.turboMode"
-                                    />
-                                </MenuItem>
-                            </MenuItemTooltip>
-                        </MenuSection>
+
                     </MenuBarMenu>
                 </div>
             </div>
+
+            {/*fengedian*/}
             <Divider className={classNames(styles.divider)} />
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field">
@@ -307,6 +344,8 @@ const MenuBar = props => (
                     />
                 </MenuBarItemTooltip>
             </div>
+
+            {/*fengeidan*/}
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="share-button">
                     <Button className={classNames(styles.shareButton)}>
@@ -318,6 +357,8 @@ const MenuBar = props => (
                     </Button>
                 </MenuBarItemTooltip>
             </div>
+
+            {/*fengedian*/}
             <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                 {props.enableCommunity ?
                     <Button
@@ -348,6 +389,7 @@ const MenuBar = props => (
                 }
             </div>
         </div>
+        {/*大的分享分割点*/}
         <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
             <a
                 className={styles.feedbackLink}
@@ -421,12 +463,15 @@ const MenuBar = props => (
 );
 
 MenuBar.propTypes = {
+    hardwareMenuOpen: PropTypes.bool,
     editMenuOpen: PropTypes.bool,
     enableCommunity: PropTypes.bool,
     fileMenuOpen: PropTypes.bool,
     intl: intlShape,
     languageMenuOpen: PropTypes.bool,
     onClickEdit: PropTypes.func,
+    changehardware:PropTypes.func,   //wlq
+    changeconnect:PropTypes.func,  // wlq
     onClickFile: PropTypes.func,
     onClickLanguage: PropTypes.func,
     onOpenTipLibrary: PropTypes.func,
@@ -438,6 +483,9 @@ MenuBar.propTypes = {
 
 const mapStateToProps = state => ({
     fileMenuOpen: fileMenuOpen(state),
+    hardwareMenuOpen: hardwareMenuOpen(state),
+    //预加 还没reduxer
+    // connecTion:connectMenuOpen(state), //预加
     editMenuOpen: editMenuOpen(state),
     languageMenuOpen: languageMenuOpen(state)
 });
@@ -448,6 +496,13 @@ const mapDispatchToProps = dispatch => ({
     onRequestCloseFile: () => dispatch(closeFileMenu()),
     onClickEdit: () => dispatch(openEditMenu()),
     onRequestCloseEdit: () => dispatch(closeEditMenu()),
+
+    onClickHardware: () => dispatch(openHardwareMenu()),               // wlq预加
+    onRequestCloseHardware: () => dispatch(closeHardwareMenu()),       //wlq 预加
+
+    onClickConnect: () => dispatch(openEditConnect()),
+    onRequestCloseConnect: () => dispatch(closeConnectMenu()),
+
     onClickLanguage: () => dispatch(openLanguageMenu()),
     onRequestCloseLanguage: () => dispatch(closeLanguageMenu()),
     onSeeCommunity: () => dispatch(setPlayer(true))

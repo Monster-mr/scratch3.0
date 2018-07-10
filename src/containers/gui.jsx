@@ -4,7 +4,7 @@ import React from 'react';
 import VM from 'scratch-vm';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
-
+import bindAll from 'lodash.bindall';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {openExtensionLibrary} from '../reducers/modals';
 import {
@@ -23,13 +23,16 @@ import ProjectLoaderHOC from '../lib/project-loader-hoc.jsx';
 import vmListenerHOC from '../lib/vm-listener-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
+import ArduinoPanel from './arduino-panel.jsx';
 
 class GUI extends React.Component {
     constructor (props) {
         super(props);
+        bindAll(this, ['toggleArduinoPanel','toggelStage']);
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
+            showArduinoPanel: false,
             errorMessage: ''
         };
     }
@@ -66,6 +69,12 @@ class GUI extends React.Component {
             });
         }
     }
+    toggleArduinoPanel(){
+        this.setState({showArduinoPanel: !this.state.showArduinoPanel});
+    }
+    toggelStage(){
+        this.setState({showStage: !this.state.showStage})
+    }
     render () {
         if (this.state.loadingError) {
             throw new Error(
@@ -77,6 +86,7 @@ class GUI extends React.Component {
             loadingStateVisible,
             projectData, // eslint-disable-line no-unused-vars
             vm,
+            arduinoPanelProps,
             ...componentProps
         } = this.props;
         return (

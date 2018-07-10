@@ -72,15 +72,16 @@ const GUIComponent = props => {
         onActivateTab,
         onRequestCloseBackdropLibrary,
         onRequestCloseCostumeLibrary,
-        onSeeCommunity,
-        previewInfoVisible,
-        targetIsStage,
         soundsTabVisible,
         stageSizeMode,
         tipsLibraryVisible,
         vm,
         ...componentProps
+        onSeeCommunity,
+        previewInfoVisible,
+        targetIsStage,
     } = omit(props, 'dispatch');
+    console.log()
     if (children) {
         return <Box {...componentProps}>{children}</Box>;
     }

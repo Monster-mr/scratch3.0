@@ -96,7 +96,7 @@ class ProjectLoader extends React.Component {
             /* eslint-enable no-unused-vars */
             ...props
         } = this.props;
-        return this.props.children(this.renderFileInput, this.handleClick, props);
+        return this.props.children(this.renderFileInput, this.handleClick, props);// 半年在这等着里
     }
 }
 
