@@ -2,7 +2,8 @@ const OPEN_MENU = 'scratch-gui/menus/OPEN_MENU';
 const CLOSE_MENU = 'scratch-gui/menus/CLOSE_MENU';
 
 const MENU_FILE = 'fileMenu';
-const MENU_HARDWAER = 'hardwareMenu';
+const MENU_HARDWAER = 'hardwareMenu';  //wlq
+const MENU_CONNECT = 'connectMenu';   //wlq
 const MENU_EDIT = 'editMenu';
 const MENU_LANGUAGE = 'languageMenu';
 
@@ -10,7 +11,8 @@ const MENU_LANGUAGE = 'languageMenu';
 const initialState = {
     [MENU_FILE]: false,
     [MENU_EDIT]: false,
-    [MENU_HARDWAER]: false,
+    [MENU_HARDWAER]: false, //wlq
+    [MENU_CONNECT]: false,   //wlq
     [MENU_LANGUAGE]: false
 };
 
@@ -45,6 +47,9 @@ const openHardwareMenu = () => openMenu(MENU_HARDWAER);
 const closeHardwareMenu = () => closeMenu(MENU_HARDWAER);
 const hardwareMenuOpen = state => state.scratchGui.menus[MENU_HARDWAER];// 硬件框
 
+const openConnectMenu = () => openMenu(MENU_CONNECT);
+const closeConnectMenu = () => closeMenu(MENU_CONNECT);
+const connectMenuOpen = state => state.scratchGui.menus[MENU_CONNECT];// 硬件框
 
 const openEditMenu = () => openMenu(MENU_EDIT);
 const closeEditMenu = () => closeMenu(MENU_EDIT);
@@ -57,10 +62,16 @@ const languageMenuOpen = state => state.scratchGui.menus[MENU_LANGUAGE];
 export {
     reducer as default,
     initialState as menuInitialState,
-    openFileMenu,
+
     openHardwareMenu,
     closeHardwareMenu,
     hardwareMenuOpen,
+
+    openConnectMenu,
+    closeConnectMenu,
+    connectMenuOpen,
+
+    openFileMenu,
     closeFileMenu,
     openEditMenu,
     closeEditMenu,

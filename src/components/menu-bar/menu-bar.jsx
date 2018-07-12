@@ -23,6 +23,9 @@ import {
     openHardwareMenu,
     closeHardwareMenu,
     hardwareMenuOpen,
+    openConnectMenu,
+    closeConnectMenu,
+    connectMenuOpen,
     fileMenuOpen,
     openEditMenu,
     closeEditMenu,
@@ -309,7 +312,7 @@ const MenuBar = props => (
                 {/*fengedian  */}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.hardwareMenuOpen                      //wlq
+                        [styles.active]: props.F                      //wlq
                     })}
                     onMouseUp={props.onClickHardware}
                 >
@@ -332,6 +335,41 @@ const MenuBar = props => (
                     </MenuBarMenu>
                 </div>
             </div>
+
+            {/*fengedian  */}
+            <div
+                className={classNames(styles.menuBarItem, styles.hoverable, {
+                    [styles.active]: props.connectMenuOpen                      //wlq
+                })}
+                onMouseUp={props.onClickConnect}
+            >
+                <div className={classNames(styles.editMenu)}>
+                    Connect
+                </div>
+                <MenuBarMenu
+                    open={props.connectMenuOpen}
+                    onRequestClose={props.onRequestCloseConnect}
+                >
+                    <MenuItemTooltip id="usb">
+                        <MenuItem
+                            // onClick={Arduino}
+
+                        >
+                            端口
+                        </MenuItem>
+                    </MenuItemTooltip>
+                    <MenuItemTooltip id="wifi">
+                        <MenuItem
+                            // onClick={Arduino}
+
+                        >
+                            wifi
+                        </MenuItem>
+                    </MenuItemTooltip>
+
+                </MenuBarMenu>
+            </div>
+        </div>
 
             {/*fengedian*/}
             <Divider className={classNames(styles.divider)} />
@@ -388,7 +426,6 @@ const MenuBar = props => (
                     </MenuBarItemTooltip>
                 }
             </div>
-        </div>
         {/*大的分享分割点*/}
         <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
             <a
@@ -464,26 +501,31 @@ const MenuBar = props => (
 
 MenuBar.propTypes = {
     hardwareMenuOpen: PropTypes.bool,
+    connectMenuOpen: PropTypes.bool,
     editMenuOpen: PropTypes.bool,
     enableCommunity: PropTypes.bool,
     fileMenuOpen: PropTypes.bool,
     intl: intlShape,
     languageMenuOpen: PropTypes.bool,
     onClickEdit: PropTypes.func,
-    changehardware:PropTypes.func,   //wlq
-    changeconnect:PropTypes.func,  // wlq
+    onClickHardware:PropTypes.func,   //wlq
+    onClickConnect:PropTypes.func,  // wlq
+
     onClickFile: PropTypes.func,
     onClickLanguage: PropTypes.func,
     onOpenTipLibrary: PropTypes.func,
     onRequestCloseEdit: PropTypes.func,
     onRequestCloseFile: PropTypes.func,
     onRequestCloseLanguage: PropTypes.func,
+    onRequestCloseHardware: PropTypes.func,
+    onRequestCloseConnect: PropTypes.func,
     onSeeCommunity: PropTypes.func
 };
 
 const mapStateToProps = state => ({
     fileMenuOpen: fileMenuOpen(state),
     hardwareMenuOpen: hardwareMenuOpen(state),
+    connectMenuOpen: connectMenuOpen(state),
     //预加 还没reduxer
     // connecTion:connectMenuOpen(state), //预加
     editMenuOpen: editMenuOpen(state),
@@ -500,7 +542,7 @@ const mapDispatchToProps = dispatch => ({
     onClickHardware: () => dispatch(openHardwareMenu()),               // wlq预加
     onRequestCloseHardware: () => dispatch(closeHardwareMenu()),       //wlq 预加
 
-    onClickConnect: () => dispatch(openEditConnect()),
+    onClickConnect: () => dispatch(openConnectMenu()),
     onRequestCloseConnect: () => dispatch(closeConnectMenu()),
 
     onClickLanguage: () => dispatch(openLanguageMenu()),

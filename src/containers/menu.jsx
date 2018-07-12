@@ -15,6 +15,7 @@ class Menu extends React.Component {
         ]);
     }
     componentDidMount () {
+        console.log("what")
         if (this.props.open) this.addListeners();
     }
     componentDidUpdate (prevProps) {
