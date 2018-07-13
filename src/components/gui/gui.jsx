@@ -20,6 +20,7 @@ import Box from '../box/box.jsx';
 import MenuBar from '../menu-bar/menu-bar.jsx';
 import CostumeLibrary from '../../containers/costume-library.jsx';
 import BackdropLibrary from '../../containers/backdrop-library.jsx';
+import ArduinoPanel from '../../containers/arduino-panel.jsx'
 
 import Backpack from '../../containers/backpack.jsx';
 import PreviewModal from '../../containers/preview-modal.jsx';
@@ -79,6 +80,7 @@ const GUIComponent = props => {
         stageSizeMode,
         tipsLibraryVisible,
         vm,
+        toggleArduinoPanel,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -121,6 +123,9 @@ const GUIComponent = props => {
                 {importInfoVisible ? (
                     <ImportModal />
                 ) : null}
+                {toggleArduinoPanel ? (
+                    <ArduinoPanel />
+                ): null}
                 {isRendererSupported ? null : (
                     <WebGlModal />
                 )}

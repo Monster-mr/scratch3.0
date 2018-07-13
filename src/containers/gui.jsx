@@ -23,7 +23,7 @@ import ProjectLoaderHOC from '../lib/project-loader-hoc.jsx';
 import vmListenerHOC from '../lib/vm-listener-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
-import ArduinoPanel from './arduino-panel.jsx';
+// import ArduinoPanel from './arduino-panel.jsx';
 
 class GUI extends React.Component {
     constructor (props) {
@@ -86,12 +86,12 @@ class GUI extends React.Component {
             loadingStateVisible,
             projectData, // eslint-disable-line no-unused-vars
             vm,
-            arduinoPanelProps,
             ...componentProps
         } = this.props;
         return (
             <GUIComponent
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
+                toggleArduinoPanel={this.toggleArduinoPanel}
                 vm={vm}
                 {...componentProps}
             >
@@ -104,6 +104,7 @@ class GUI extends React.Component {
 GUI.propTypes = {
     ...GUIComponent.propTypes,
     fetchingProject: PropTypes.bool,
+    toggleArduinoPanel: PropTypes.func,
     importInfoVisible: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
     onSeeCommunity: PropTypes.func,
