@@ -21,7 +21,7 @@ class ArduinoPanelComponent extends React.Component {
                     height: 560,
                     top: 90,
                     bottom: 8,
-                    backgroundColor: '#0097a7'
+                    backgroundColor: '#0097a7',
                 }}
             >
             <div className="group" id="code-buttons" style={{top:4,left:4,width:480,position:'absolute'}}>

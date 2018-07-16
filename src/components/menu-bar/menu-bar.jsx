@@ -4,6 +4,7 @@ import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-int
 import PropTypes from 'prop-types';
 import React from 'react';
 
+/*import Popup from '../popup/popup';*/
 import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
@@ -46,6 +47,7 @@ import languageIcon from '../language-selector/language-icon.svg';
 import scratchLogo from './scratch-logo.svg';
 
 import helpIcon from './icon--help.svg';
+
 
 const ariaMessages = defineMessages({
     language: {
@@ -147,8 +149,9 @@ const MenuBar = props => (
                         src={scratchLogo}
                     />
                 </div>
+                {/*隐藏的*/}
                 <div
-                    className={classNames(styles.menuBarItem, styles.hoverable, {
+                    className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
                         [styles.active]: props.languageMenuOpen
                     })}
                     onMouseUp={props.onClickLanguage}
@@ -180,8 +183,10 @@ const MenuBar = props => (
 
                     </MenuBarItemTooltip>
                 </div>
+       {/*         <Popup>
 
-                {/*fengedian */}
+                </Popup>*/}
+                {/*fengedian 文件wenjian*/}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
                         [styles.active]: props.fileMenuOpen
@@ -199,7 +204,14 @@ const MenuBar = props => (
                         open={props.fileMenuOpen}
                         onRequestClose={props.onRequestCloseFile}
                     >
-                        <MenuItemTooltip id="new">
+                        <MenuItem>
+                            <FormattedMessage
+                                defaultMessage="New"
+                                description="Menu bar item for creating a new project"
+                                id="gui.menuBar.new"
+                            />
+                        </MenuItem>
+                       {/* 这个是添加了一个改变按钮颜色的状态<MenuItemTooltip id="new">
                             <MenuItem>
                                 <FormattedMessage
                                     defaultMessage="New"
@@ -207,8 +219,8 @@ const MenuBar = props => (
                                     id="gui.menuBar.new"
                                 />
                             </MenuItem>
-                        </MenuItemTooltip>
-                        <MenuSection>
+                        </MenuItemTooltip>*/}
+       {/*                 <MenuSection>
                             <MenuItemTooltip id="save">
                                 <MenuItem>
                                     <FormattedMessage
@@ -226,18 +238,18 @@ const MenuBar = props => (
                                         id="gui.menuBar.saveAsCopy"
                                     /></MenuItem>
                             </MenuItemTooltip>
-                        </MenuSection>
-                        <MenuSection>
+                        </MenuSection>*/}
+                        <MenuSection>{/*两个实现的项*/}
                             <ProjectLoader>{(renderFileInput, loadProject, loadProps) => (
                                 <MenuItem
                                     onClick={loadProject}
                                     {...loadProps}
-                                >
-                                    <FormattedMessage
+                                >负载均衡
+                                  {/*  <FormattedMessage
                                         defaultMessage="Load from your computer"
                                         description="Menu bar item for uploading a project from your computer"
                                         id="gui.menuBar.uploadFromComputer"
-                                    />
+                                    />*/}
                                     {renderFileInput()}
                                 </MenuItem>
                             )}</ProjectLoader>
@@ -245,18 +257,18 @@ const MenuBar = props => (
                                 <MenuItem
                                     onClick={saveProject}
                                     {...saveProps}
-                                >
-                                    <FormattedMessage
+                                >保存文件
+                                    {/*<FormattedMessage
                                         defaultMessage="Save to your computer"
                                         description="Menu bar item for downloading a project to your computer"
                                         id="gui.menuBar.downloadToComputer"
-                                    />
+                                    />*/}
                                 </MenuItem>
                             )}</ProjectSaver>
                         </MenuSection>
                     </MenuBarMenu>
                 </div>
-                {/*fengdian  hahah */}
+                {/*fengdian  hahah 编辑栏*/}
                 <div
                 className={classNames(styles.menuBarItem, styles.hoverable, {
                     [styles.active]: props.editMenuOpen
@@ -274,7 +286,21 @@ const MenuBar = props => (
                     open={props.editMenuOpen}
                     onRequestClose={props.onRequestCloseEdit}
                 >
-                    <MenuItemTooltip id="undo">
+                    <MenuItem>{/*撤销*/}
+                        <FormattedMessage
+                            defaultMessage="Undo"
+                            description="Menu bar item for undoing"
+                            id="gui.menuBar.undo"
+                        />
+                    </MenuItem>
+                    <MenuItem>{/*重做*/}
+                        <FormattedMessage
+                            defaultMessage="Redo"
+                            description="Menu bar item for redoing"
+                            id="gui.menuBar.redo"
+                        />
+                    </MenuItem>
+                  {/*比上面代码多了一层包裹  <MenuItemTooltip id="undo">
                         <MenuItem>
                             <FormattedMessage
                                 defaultMessage="Undo"
@@ -291,8 +317,8 @@ const MenuBar = props => (
                                 id="gui.menuBar.redo"
                             />
                         </MenuItem>
-                    </MenuItemTooltip>
-                    <MenuSection>
+                    </MenuItemTooltip>*/}
+          {/*          <MenuSection>
                         <MenuItemTooltip id="turbo">
                             <MenuItem>
                                 <FormattedMessage
@@ -302,7 +328,7 @@ const MenuBar = props => (
                                 />
                             </MenuItem>
                         </MenuItemTooltip>
-                    </MenuSection>
+                    </MenuSection>*/}
                 </MenuBarMenu>
                 </div>
 
@@ -376,15 +402,17 @@ const MenuBar = props => (
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field">
                     <input
-                        disabled
+                       /* disabled 让文本框可输入*/
                         className={classNames(styles.titleField)}
                         placeholder="Untitled-1"
+                         //ref={ (input) => this.myInput = input }
+                        // value={this.myInput.value}
                     />
                 </MenuBarItemTooltip>
             </div>
 
-            {/*fengeidan*/}
-            <div className={classNames(styles.menuBarItem)}>
+            {/*fengeidan隐藏掉的分享*/}
+            <div className={classNames(styles.menuBarItem, styles.hide)}>
                 <MenuBarItemTooltip id="share-button">
                     <Button className={classNames(styles.shareButton)}>
                         <FormattedMessage
@@ -396,7 +424,7 @@ const MenuBar = props => (
                 </MenuBarItemTooltip>
             </div>
 
-            {/*fengedian*/}
+            {/*fengedian隐藏掉的查看社区 */}
             <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                 {props.enableCommunity ?
                     <Button
@@ -426,7 +454,7 @@ const MenuBar = props => (
                     </MenuBarItemTooltip>
                 }
             </div>
-        {/*大的分享分割点*/}
+        {/*大的分享分割点 意见反馈和使用指南*/}
         <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
             <a
                 className={styles.feedbackLink}
@@ -452,17 +480,21 @@ const MenuBar = props => (
                 className={classNames(styles.menuBarItem, styles.hoverable)}
                 onClick={props.onOpenTipLibrary}
             >
-                <img
+                <Button  className={classNames(styles.btn)}>
+                    使用指南
+                </Button>
+               {/* <img
                     className={styles.helpIcon}
                     src={helpIcon}
-                />
+                />*/}
             </div>
             <MenuBarItemTooltip id="mystuff">
                 <div
                     className={classNames(
                         styles.menuBarItem,
                         styles.hoverable,
-                        styles.mystuffButton
+                        styles.mystuffButton,
+                        styles.hide
                     )}
                 >
                     <img
@@ -479,7 +511,8 @@ const MenuBar = props => (
                     className={classNames(
                         styles.menuBarItem,
                         styles.hoverable,
-                        styles.accountNavMenu
+                        styles.accountNavMenu,
+                        styles.hide
                     )}
                 >
                     <img

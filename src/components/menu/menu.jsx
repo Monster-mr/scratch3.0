@@ -71,7 +71,7 @@ MenuSection.propTypes = {
 };
 
 export {
-    MenuComponent as default,
+    MenuComponent as default,//默认导出模块
     MenuItem,
     MenuSection
 };

@@ -1,0 +1,5 @@
+.popup{display: block; width: 300px; height: 150px; background: #ffffff; position: absolute; left: 50%; top: 70px; margin-left: -150px;  box-shadow: 10px 10px 8px #888888;}
+.error{ display: none;}
+.popup .popup-txt{ width:300px; height:40px; line-height: 40px; font-size: 22px; text-align: center; margin-top:20px;}
+.popup .popup-btn{ margin-top: 55px;}
+.popup .popup-btn button{ width: 80px; text-align: center; margin-left: 15px; overflow: hidden;}

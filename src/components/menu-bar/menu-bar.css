@@ -77,6 +77,25 @@
 .menu-bar-item.hoverable:hover {
     background-color: $ui-black-transparent;
 }
+.menu-bar-item.hoverable.hide{   /*隐藏地球图标和header最后部分*/
+display: none;
+}
+.menu-bar-item.hide{
+    display: none;    /*隐藏分享*/
+}
+.menu-bar-item.hoverable .btn{
+    border-radius: 5px;
+    background: #fff;
+    color: blue;
+    display: block;
+    height: 35px;
+    line-height: 35px;
+    position: absolute;
+    left: -150px;
+    z-index: 1000;
+}
+
+
 
 .file-group {
     display: flex;
@@ -101,15 +120,17 @@
 .divider {
     margin: 0 .5rem;
     height: 34px;
+    display: none;
 }
 
 .title-field {
-    border: 1px dashed $ui-black-transparent;
+/*    border: 1px dashed $ui-black-transparent;*/
     border-radius: .25rem;
     width: 12rem;
     height: 34px;
     background-color: transparent;
     padding: .5rem;
+    color: #fff;
 }
 
 .title-field,
@@ -129,7 +150,9 @@
     height: 32px;
     box-shadow: 0 0 0 1px $ui-black-transparent;
 }
-
+.menu-bar-item.community-button-wrapper{       /*隐藏查看社区*/
+    display: none;
+}
 .community-button-icon {
     height: 1.25rem;
 }
@@ -144,7 +167,6 @@
     padding: 0 .5rem;
     align-items: center;
 }
-
 .mystuff-icon {
     margin: 0 .25rem;
     height: 1rem;
