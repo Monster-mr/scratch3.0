@@ -10,7 +10,6 @@ import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import LanguageSelector from '../../containers/language-selector.jsx';
 import ProjectLoader from '../../containers/project-loader.jsx';
-import Arduino from '../../containers/Arduino.jsx';
 import Menu from '../../containers/menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectSaver from '../../containers/project-saver.jsx';
@@ -323,9 +322,9 @@ const MenuBar = props => (
                         open={props.hardwareMenuOpen}
                         onRequestClose={props.onRequestCloseHardware}
                     >
-                        <MenuBarItemTooltip id="Arduino" enable={true}>
+                        <MenuBarItemTooltip id="Arduinopanel" enable={true}>
                             <MenuItem
-                                onClick={Arduino}
+                                onClick={props.toggleArduinoPanel}
                                 enable={true}
 
                             >

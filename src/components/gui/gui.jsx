@@ -80,6 +80,7 @@ const GUIComponent = props => {
         stageSizeMode,
         tipsLibraryVisible,
         vm,
+        showArduinoPanel,
         toggleArduinoPanel,
         ...componentProps
     } = omit(props, 'dispatch');
@@ -124,7 +125,7 @@ const GUIComponent = props => {
                     <ImportModal />
                 ) : null}
                 {toggleArduinoPanel ? (
-                    <ArduinoPanel />
+                    <ArduinoPanel visible={props.showArduinoPanel}/>
                 ): null}
                 {isRendererSupported ? null : (
                     <WebGlModal />
@@ -150,6 +151,8 @@ const GUIComponent = props => {
                 <MenuBar
                     enableCommunity={enableCommunity}
                     onSeeCommunity={onSeeCommunity}
+                    toggleArduinoPanel={toggleArduinoPanel}
+
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>

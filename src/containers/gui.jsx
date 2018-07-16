@@ -92,6 +92,7 @@ class GUI extends React.Component {
             <GUIComponent
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
+                showArduinoPanel={this.state.showArduinoPanel}
                 vm={vm}
                 {...componentProps}
             >
