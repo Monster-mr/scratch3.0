@@ -32,7 +32,9 @@ class GUI extends React.Component {
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
+            currentModal: null,
             showArduinoPanel: false,
+            showStage: true,
             errorMessage: ''
         };
     }
@@ -73,7 +75,7 @@ class GUI extends React.Component {
         this.setState({showArduinoPanel: !this.state.showArduinoPanel});
     }
     toggelStage(){
-        this.setState({showStage: !this.state.showStage})
+        this.setState({showStage: !this.state.showStage});
     }
     render () {
         if (this.state.loadingError) {
