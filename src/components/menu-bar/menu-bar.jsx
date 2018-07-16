@@ -312,7 +312,7 @@ const MenuBar = props => (
                 {/*fengedian  */}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.F                      //wlq
+                        [styles.active]: props.hardwareMenuOpen                     //wlq
                     })}
                     onMouseUp={props.onClickHardware}
                 >
@@ -323,14 +323,15 @@ const MenuBar = props => (
                         open={props.hardwareMenuOpen}
                         onRequestClose={props.onRequestCloseHardware}
                     >
-                        <MenuItemTooltip id="Arduino">
+                        <MenuBarItemTooltip id="Arduino" enable={true}>
                             <MenuItem
                                 onClick={Arduino}
+                                enable={true}
 
                             >
                               Arduino
                             </MenuItem>
-                        </MenuItemTooltip>
+                        </MenuBarItemTooltip>
 
                     </MenuBarMenu>
                 </div>
@@ -350,22 +351,22 @@ const MenuBar = props => (
                     open={props.connectMenuOpen}
                     onRequestClose={props.onRequestCloseConnect}
                 >
-                    <MenuItemTooltip id="usb">
+                    <MenuBarItemTooltip id="usb" enable={true}>
                         <MenuItem
                             // onClick={Arduino}
 
                         >
                             端口
                         </MenuItem>
-                    </MenuItemTooltip>
-                    <MenuItemTooltip id="wifi">
+                    </MenuBarItemTooltip>
+                    <MenuBarItemTooltip id="wifi" enable={true}>
                         <MenuItem
                             // onClick={Arduino}
 
                         >
                             wifi
                         </MenuItem>
-                    </MenuItemTooltip>
+                    </MenuBarItemTooltip>
 
                 </MenuBarMenu>
             </div>
