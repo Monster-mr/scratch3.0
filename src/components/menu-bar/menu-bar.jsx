@@ -204,7 +204,7 @@ const MenuBar = props => (
                         open={props.fileMenuOpen}
                         onRequestClose={props.onRequestCloseFile}
                     >
-                        <MenuItem>
+                        <MenuItem id='Popup' onClick={props.togglePopup}>
                             <FormattedMessage
                                 defaultMessage="New"
                                 description="Menu bar item for creating a new project"
@@ -400,7 +400,7 @@ const MenuBar = props => (
             {/*fengedian*/}
             <Divider className={classNames(styles.divider)} />
             <div className={classNames(styles.menuBarItem)}>
-                <MenuBarItemTooltip id="title-field">
+                <MenuBarItemTooltip id="title-field" enable={true}>
                     <input
                        /* disabled 让文本框可输入*/
                         className={classNames(styles.titleField)}

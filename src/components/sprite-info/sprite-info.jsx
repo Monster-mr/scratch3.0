@@ -35,6 +35,7 @@ class SpriteInfo extends React.Component {
             this.props.size !== nextProps.size ||
             this.props.stageSize !== nextProps.stageSize ||
             this.props.visible !== nextProps.visible ||
+            //this.props.showPopup !== nextProps.showPopup ||
             this.props.x !== nextProps.x ||
             this.props.y !== nextProps.y
         );

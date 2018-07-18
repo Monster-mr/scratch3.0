@@ -20,7 +20,8 @@ import Box from '../box/box.jsx';
 import MenuBar from '../menu-bar/menu-bar.jsx';
 import CostumeLibrary from '../../containers/costume-library.jsx';
 import BackdropLibrary from '../../containers/backdrop-library.jsx';
-import ArduinoPanel from '../../containers/arduino-panel.jsx'
+import ArduinoPanel from '../../containers/arduino-panel.jsx';
+import Popup from '../../containers/popup.jsx';
 
 import Backpack from '../../containers/backpack.jsx';
 import PreviewModal from '../../containers/preview-modal.jsx';
@@ -82,6 +83,8 @@ const GUIComponent = props => {
         vm,
         showArduinoPanel,
         toggleArduinoPanel,
+        togglePopup,
+        showPopups,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -127,6 +130,10 @@ const GUIComponent = props => {
                 {toggleArduinoPanel ? (
                     <ArduinoPanel visible={props.showArduinoPanel}/>
                 ): null}
+                {togglePopup ? (
+                    <Popup showPopup={props.showPopups}
+                    togglePopup={props.togglePopup}/>  //zbl 点击新建项目的传值
+                ): null}
                 {isRendererSupported ? null : (
                     <WebGlModal />
                 )}
@@ -152,7 +159,7 @@ const GUIComponent = props => {
                     enableCommunity={enableCommunity}
                     onSeeCommunity={onSeeCommunity}
                     toggleArduinoPanel={toggleArduinoPanel}
-
+                    togglePopup={togglePopup}
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>

@@ -28,14 +28,15 @@ import GUIComponent from '../components/gui/gui.jsx';
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage']);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','togglePopup']);
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
             currentModal: null,
             showArduinoPanel: false,
             showStage: true,
-            errorMessage: ''
+            errorMessage: '',
+            showPopups:false
         };
     }
     componentDidMount () {
@@ -74,6 +75,9 @@ class GUI extends React.Component {
     toggleArduinoPanel(){
         this.setState({showArduinoPanel: !this.state.showArduinoPanel});
     }
+    togglePopup(){
+        this.setState({showPopups:!this.state.showPopups}); //zbl 新建项目的的值
+    }
     toggelStage(){
         this.setState({showStage: !this.state.showStage});
     }
@@ -94,7 +98,9 @@ class GUI extends React.Component {
             <GUIComponent
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
+                togglePopup={this.togglePopup}
                 showArduinoPanel={this.state.showArduinoPanel}
+                showPopups={this.state.showPopups}
                 vm={vm}
                 {...componentProps}
             >
@@ -108,6 +114,7 @@ GUI.propTypes = {
     ...GUIComponent.propTypes,
     fetchingProject: PropTypes.bool,
     toggleArduinoPanel: PropTypes.func,
+    toggePoopup:PropTypes.func,
     importInfoVisible: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
     onSeeCommunity: PropTypes.func,
