@@ -7,6 +7,7 @@ import ReactModal from 'react-modal';
 import bindAll from 'lodash.bindall';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {openExtensionLibrary} from '../reducers/modals';
+import  KittenBlock  from '../../pc/kittenblock.js';
 import {
     activateTab,
     BLOCKS_TAB_INDEX,
@@ -23,12 +24,13 @@ import ProjectLoaderHOC from '../lib/project-loader-hoc.jsx';
 import vmListenerHOC from '../lib/vm-listener-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
+import {STAGE_SIZE_MODES} from "../lib/layout-constants";
 // import ArduinoPanel from './arduino-panel.jsx';
 
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','togglePopup']);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery']);
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
@@ -36,8 +38,21 @@ class GUI extends React.Component {
             showArduinoPanel: false,
             showStage: true,
             errorMessage: '',
-            showPopups:false
+            showPopups:false,
+            portDev: [],
+            connectedPort: null
         };
+    }
+    sendCommonData(msg){
+        this.props.kb.sendCmd(msg);
+    }
+    portReadLine(line){
+        this.props.kb.arduino.parseLine(line);
+        console.log("portReadLine "+line);
+    }
+    deviceQuery(data){
+        console.log("query data "+JSON.stringify(data));
+        return this.props.kb.arduino.queryData(data);
     }
     componentDidMount () {
         if (this.props.vm.initialized) return;
@@ -55,6 +70,10 @@ class GUI extends React.Component {
                 // error page gets rendered if project failed to load
                 this.setState({loadingError: true, errorMessage: e});
             });
+        // kittenblock link hardware
+        this.props.vm.runtime.ioDevices.serial.regSendMsg(this.sendCommonData);
+        this.props.vm.runtime.ioDevices.serial.regQueryData(this.deviceQuery);
+        this.props.kb.arduino.sendCmdEvent.addListener(this.sendCommonData);
         this.props.vm.initialized = true;
     }
     componentWillReceiveProps (nextProps) {
@@ -72,6 +91,32 @@ class GUI extends React.Component {
             });
         }
     }
+
+    serialDevUpdate (data) {
+        this.setState({portDev: data});
+    }
+    refreshPort(){
+        this.props.kb.enumPort(this.serialDevUpdate);
+    }
+    portConnected(port){
+        console.log("port connected "+port);
+        this.setState({connectedPort:port});
+    }
+    portOnReadline(line){
+        console.log("port get line "+line);
+    }
+    portClosed(){
+        console.log("port closed ");
+    }
+    selectPort(port){
+        console.log("connect to port "+JSON.stringify(port));
+        if(port.type=='disconnect'){
+            this.props.kb.disonnectPort();
+        }else{
+            this.props.kb.connectPort(port,this.portConnected,this.portOnReadline,this.portClosed);
+        }
+    }
+
     toggleArduinoPanel(){
         this.setState({showArduinoPanel: !this.state.showArduinoPanel});
     }
@@ -99,9 +144,15 @@ class GUI extends React.Component {
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
                 togglePopup={this.togglePopup}
+                portReadLine={(line)=>this.portReadLine(line)}
                 showArduinoPanel={this.state.showArduinoPanel}
                 showPopups={this.state.showPopups}
                 vm={vm}
+                serialDev={this.state.portDev}
+                connectedPort={this.state.connectedPort}
+                refreshPort={this.refreshPort}
+                selectPort={this.selectPort}
+                kb={this.props.kb}
                 {...componentProps}
             >
                 {children}
@@ -114,16 +165,46 @@ GUI.propTypes = {
     ...GUIComponent.propTypes,
     fetchingProject: PropTypes.bool,
     toggleArduinoPanel: PropTypes.func,
-    toggePoopup:PropTypes.func,
+    portReadLine: PropTypes.func,
     importInfoVisible: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
     onSeeCommunity: PropTypes.func,
     previewInfoVisible: PropTypes.bool,
     projectData: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    vm: PropTypes.instanceOf(VM)
+    vm: PropTypes.instanceOf(VM),
+    kb:PropTypes.instanceOf(KittenBlock)
 };
 
-GUI.defaultProps = GUIComponent.defaultProps;
+// GUI.defaultProps = GUIComponent.defaultProps;     //将km带入这个默认props  wlq
+GUI.defaultProps = {
+    backpackOptions: {
+        host: null,
+        visible: false
+    },
+    basePath: './',
+    headerBarProps: {},
+    stageSizeMode: STAGE_SIZE_MODES.large,
+    kb: new KittenBlock(),
+    vm: new VM
+};
+
+// GUI.defaultProps = {
+//     // backdropLibraryProps: {},
+//     // basePath: '/',
+//     // blocksProps: {},
+//     // costumeLibraryProps: {},
+//     // greenFlagProps: {},
+//     // spriteSelectorProps: {},
+//     // spriteLibraryProps: {},
+//     // setupModalProps: {},
+//     // stageProps: {},
+//     // stopAllProps: {},
+//     // arduinoPanelProps: {},
+//     // headerBarProps: {},
+//     // editorTabsProps: {},
+//     vm: new VM(),
+//     kb: new KittenBlock()
+// };
 
 const mapStateToProps = state => ({
     activeTabIndex: state.scratchGui.editorTab.activeTabIndex,

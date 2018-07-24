@@ -85,6 +85,7 @@ const GUIComponent = props => {
         toggleArduinoPanel,
         togglePopup,
         showPopups,
+        serialDev,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -128,10 +129,10 @@ const GUIComponent = props => {
                     <ImportModal />
                 ) : null}
                 {toggleArduinoPanel ? (
-                    <ArduinoPanel visible={props.showArduinoPanel}/>
+                    <ArduinoPanel visible={showArduinoPanel} code={'#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n'}/>
                 ): null}
                 {togglePopup ? (
-                    <Popup showPopup={props.showPopups}
+                    <Popup showPopup={showPopups}
                     togglePopup={props.togglePopup}/>  //zbl 点击新建项目的传值
                 ): null}
                 {isRendererSupported ? null : (
@@ -160,6 +161,11 @@ const GUIComponent = props => {
                     onSeeCommunity={onSeeCommunity}
                     toggleArduinoPanel={toggleArduinoPanel}
                     togglePopup={togglePopup}
+                    refreshPort={props.refreshPort}
+                    selectPort={props.selectPort}
+                    serialDev={serialDev}
+                    connectedPort={props.connectedPort}
+
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
@@ -319,7 +325,8 @@ GUIComponent.defaultProps = {
         visible: false
     },
     basePath: './',
-    stageSizeMode: STAGE_SIZE_MODES.large
+    stageSizeMode: STAGE_SIZE_MODES.large,
+    vm: new VM()
 };
 
 const mapStateToProps = state => ({

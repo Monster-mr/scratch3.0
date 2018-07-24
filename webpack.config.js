@@ -16,7 +16,7 @@ const base = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: 'cheap-module-source-map',
     devServer: {
-        contentBase: path.resolve(__dirname, 'build'),
+        contentBase: path.resolve(__dirname, 'nwjs/app'),
         host: '127.0.0.1',
         port: 9000
     },
@@ -99,8 +99,13 @@ module.exports = [
             'compatibilitytesting': './src/playground/compatibility-testing.jsx',
             'player': './src/playground/player.jsx'
         },
+        node:{
+            fs:"empty",
+            dgram:"empty",
+            child_process:"empty"
+        },
         output: {
-            path: path.resolve(__dirname, 'build'),
+            path: path.resolve(__dirname, 'nwjs/app'),
             filename: '[name].js'
         },
         externals: {

@@ -14,7 +14,6 @@ import ProjectLoader from '../../containers/project-loader.jsx';
 import Menu from '../../containers/menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectSaver from '../../containers/project-saver.jsx';
-
 import {openTipsLibrary} from '../../reducers/modals';
 import {setPlayer} from '../../reducers/mode';
 import {
@@ -137,7 +136,36 @@ MenuBarMenu.propTypes = {
     place: PropTypes.oneOf(['left', 'right'])
 };
 
-const MenuBar = props => (
+const MenuBar = props => {
+    const {
+        serialDev,
+        refreshPort,
+        selectPort,
+        toggleArduinoPanel,
+        toggleStage,
+        connectedPort,
+        ...componentProps
+    } = props;
+    var portMenuItem;
+    // var portDropdownTxt;
+    if(connectedPort!=null){
+        // portDropdownTxt = props.connectedPort;
+        portMenuItem =
+            <MenuItem eventKey={{
+                'path': props.connectedPort,
+                'type': 'disconnect'
+            }} key={connectedPort}>Disconnect</MenuItem>;
+    }else{
+        portMenuItem =
+            serialDev.map(dev => (
+                <MenuItem eventKey={{
+                    'path': dev.path,
+                    'type': dev.type
+                }} key={dev.path}>{dev.path}</MenuItem>
+            ));
+        // portDropdownTxt = "Not Connected";
+    }
+    return(
     <Box className={styles.menuBar}>
         <div className={styles.mainMenu}>
             <div className={styles.fileGroup}>
@@ -244,7 +272,7 @@ const MenuBar = props => (
                                 <MenuItem
                                     onClick={loadProject}
                                     {...loadProps}
-                                >负载均衡
+                                >载入本地项目
                                   {/*  <FormattedMessage
                                         defaultMessage="Load from your computer"
                                         description="Menu bar item for uploading a project from your computer"
@@ -350,9 +378,8 @@ const MenuBar = props => (
                     >
                         <MenuBarItemTooltip id="Arduinopanel" enable={true}>
                             <MenuItem
-                                onClick={props.toggleArduinoPanel}
+                                onClick={toggleArduinoPanel}
                                 enable={true}
-
                             >
                               Arduino
                             </MenuItem>
@@ -375,23 +402,23 @@ const MenuBar = props => (
                 <MenuBarMenu
                     open={props.connectMenuOpen}
                     onRequestClose={props.onRequestCloseConnect}
-                >
-                    <MenuBarItemTooltip id="usb" enable={true}>
-                        <MenuItem
-                            // onClick={Arduino}
+                >{portMenuItem}
+                    {/*<MenuBarItemTooltip id="usb" enable={true}>*/}
+                        {/*<MenuItem*/}
+                            {/*// onClick={Arduino}*/}
 
-                        >
-                            端口
-                        </MenuItem>
-                    </MenuBarItemTooltip>
-                    <MenuBarItemTooltip id="wifi" enable={true}>
-                        <MenuItem
-                            // onClick={Arduino}
+                        {/*>*/}
+                            {/*端口*/}
+                        {/*</MenuItem>*/}
+                    {/*</MenuBarItemTooltip>*/}
+                    {/*<MenuBarItemTooltip id="wifi" enable={true}>*/}
+                        {/*<MenuItem*/}
+                            {/*// onClick={Arduino}*/}
 
-                        >
-                            wifi
-                        </MenuItem>
-                    </MenuBarItemTooltip>
+                        {/*>*/}
+                            {/*wifi*/}
+                        {/*</MenuItem>*/}
+                    {/*</MenuBarItemTooltip>*/}
 
                 </MenuBarMenu>
             </div>
@@ -530,7 +557,7 @@ const MenuBar = props => (
             </MenuBarItemTooltip>
         </div>
     </Box>
-);
+);}
 
 MenuBar.propTypes = {
     hardwareMenuOpen: PropTypes.bool,
