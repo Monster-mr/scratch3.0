@@ -563,7 +563,7 @@ const MenuBar = props => {
         </div>
     </Box>
 );
-
+};
 MenuBar.propTypes = {
     hardwareMenuOpen: PropTypes.bool,
     connectMenuOpen: PropTypes.bool,
