@@ -15,6 +15,7 @@ class ArduinoPanel extends React.Component {
             <ArduinoPanelComponent
                 visible={this.props.visible}
                 code={this.props.code}
+                consoleMsg={this.props.consoleMsg}
                 {...props}
             />
         );

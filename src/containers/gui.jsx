@@ -30,7 +30,8 @@ import {STAGE_SIZE_MODES} from "../lib/layout-constants";
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery']);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole']);
+        this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
@@ -40,21 +41,30 @@ class GUI extends React.Component {
             errorMessage: '',
             showPopups:false,
             portDev: [],
-            connectedPort: null
+            connectedPort: null,
+            consoleMsg: this.consoleMsgBuff
         };
+    }
+    clearConsole(){
+        this.consoleMsgBuff = [];
+        this.setState({consoleMsg:this.consoleMsgBuff})
     }
     sendCommonData(msg){
         this.props.kb.sendCmd(msg);
+        this.consoleMsgBuff.push({msg:msg,color:"Gray"});
+        this.setState({consoleMsg:this.consoleMsgBuff})
     }
     portReadLine(line){
         this.props.kb.arduino.parseLine(line);
-        console.log("portReadLine "+line);
+        this.consoleMsgBuff.push({msg:line,color:"LightSkyBlue"});
+        this.setState({consoleMsg:this.consoleMsgBuff})
     }
     deviceQuery(data){
         console.log("query data "+JSON.stringify(data));
         return this.props.kb.arduino.queryData(data);
     }
     componentDidMount () {
+        this.refreshPort();   //此处仍存在若干bug
         if (this.props.vm.initialized) return;
         this.audioEngine = new AudioEngine();
         this.props.vm.attachAudioEngine(this.audioEngine);
@@ -153,6 +163,7 @@ class GUI extends React.Component {
                 refreshPort={this.refreshPort}
                 selectPort={this.selectPort}
                 kb={this.props.kb}
+                consoleMsg={this.state.consoleMsg}
                 {...componentProps}
             >
                 {children}

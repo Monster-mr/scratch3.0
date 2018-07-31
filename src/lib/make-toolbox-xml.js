@@ -686,6 +686,130 @@ const myBlocks = function () {
     `;
 };
 
+const arduino = function(){
+    return `
+    <category name="Arduino" id="arduino" colour="#FF6680" secondaryColour="#FF4D6A">
+    <block type="event_arduinobegin"></block>
+    <block type="arduino_pin_mode">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">3</field>
+    </shadow>
+    </value>
+    <value name="ARDUINO_PIN_MODE_OPTION">
+    <shadow type="arduino_pin_mode_option"></shadow>
+    </value>
+    </block>
+    <block type="arduino_digital_write">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">3</field>
+    </shadow>
+    </value>
+    <value name="ARDUINO_LEVEL_OPTION">
+    <shadow type="arduino_level_option"></shadow>
+    </value>
+    </block>
+    <block type="arduino_pwm_write">
+    <value name="ARDUINO_PWM_OPTION">
+    <shadow type="arduino_pwm_option">
+    <field name="ARDUINO_PWM_OPTION">3</field>
+    </shadow>
+    </value>
+    <value name="PWM">
+    <shadow type="math_number">
+    <field name="NUM">100</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_digital_read">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">3</field>'
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_analog_read">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">A3</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_tone">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">3</field>
+    </shadow>
+    </value>
+    <value name="FREQUENCY">
+    <shadow type="math_number">
+    <field name="NUM">200</field>
+    </shadow>
+    </value>
+    <value name="DURATION">
+    <shadow type="math_number">
+    <field name="NUM">500</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_servo">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">3</field>
+    </shadow>
+    </value>
+    <value name="ANGLE">
+    <shadow type="math_angle">
+    <field name="NUM">90</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_map">
+    <value name="VAL">
+    <shadow type="math_number">
+    <field name="NUM">512</field>
+    </shadow>
+    </value>
+    <value name="FROMLOW">
+    <shadow type="math_number">
+    <field name="NUM">0</field>
+    </shadow>
+    </value>
+    <value name="FROMHIGH">
+    <shadow type="math_number">
+    <field name="NUM">1024</field>
+    </shadow>
+    </value>
+    <value name="TOLOW">
+    <shadow type="math_number">
+    <field name="NUM">0</field>
+    </shadow>
+    </value>
+    <value name="TOHIGH">
+    <shadow type="math_number">
+    <field name="NUM">255</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_pulsein">
+    <value name="PINNUM">
+    <shadow type="text">
+    <field name="TEXT">8</field>
+    </shadow>
+    </value>
+    </block>
+    <block type="arduino_println">
+    <value name="TEXT">
+    <shadow type="text">
+    <field name="TEXT">Hello world!</field>
+    </shadow>
+    </value>
+    </block>
+    </category>
+    `;
+};
+
 const xmlOpen = '<xml style="display: none">';
 const xmlClose = '</xml>';
 
@@ -708,7 +832,8 @@ const makeToolboxXML = function (isStage, targetId, categoriesXML) {
         sensing(isStage, targetId), gap,
         operators(isStage, targetId), gap,
         variables(isStage, targetId), gap,
-        myBlocks(isStage, targetId)
+        myBlocks(isStage, targetId),
+        arduino(isStage, targetId)
     ];
 
     if (categoriesXML) {

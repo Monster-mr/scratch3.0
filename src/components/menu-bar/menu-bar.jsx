@@ -146,9 +146,10 @@ const MenuBar = props => {
         connectedPort,
         ...componentProps
     } = props;
-    var portMenuItem;
+    var portMenuItem;       //此处存在若干问题待考究
     // var portDropdownTxt;
     if(connectedPort!=null){
+        console.log("connectedport is null");
         // portDropdownTxt = props.connectedPort;
         portMenuItem =
             <MenuItem eventKey={{
@@ -156,6 +157,7 @@ const MenuBar = props => {
                 'type': 'disconnect'
             }} key={connectedPort}>Disconnect</MenuItem>;
     }else{
+        console.log(serialDev);
         portMenuItem =
             serialDev.map(dev => (
                 <MenuItem eventKey={{

@@ -77,6 +77,7 @@ const GUIComponent = props => {
         onSeeCommunity,
         previewInfoVisible,
         targetIsStage,
+        consoleMsg,
         soundsTabVisible,
         stageSizeMode,
         tipsLibraryVisible,
@@ -129,7 +130,7 @@ const GUIComponent = props => {
                     <ImportModal />
                 ) : null}
                 {toggleArduinoPanel ? (
-                    <ArduinoPanel visible={showArduinoPanel} code={'#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n'}/>
+                    <ArduinoPanel visible={showArduinoPanel} code={'#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n'} consoleMsg={consoleMsg} />
                 ): null}
                 {togglePopup ? (
                     <Popup showPopup={showPopups}
