@@ -83,19 +83,16 @@ display: none;
 .menu-bar-item.hide{
     display: none;    /*隐藏分享*/
 }
-.menu-bar-item.hoverable .btn{
+.menu-bar-item .btn{
     border-radius: 5px;
-    background: #fff;
-    color: blue;
+    color: $motion-primary;
+    background-color: $ui-white;
     display: block;
     height: 35px;
     line-height: 35px;
     position: absolute;
-    left: -150px;
-    z-index: 1000;
+    left: -100px;
 }
-
-
 
 .file-group {
     display: flex;

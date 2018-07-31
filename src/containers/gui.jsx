@@ -30,7 +30,7 @@ import {STAGE_SIZE_MODES} from "../lib/layout-constants";
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole']);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','togglePopup',"onChange","reloadPlay"]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.state = {
             loading: !props.vm.initialized,
@@ -42,7 +42,9 @@ class GUI extends React.Component {
             showPopups:false,
             portDev: [],
             connectedPort: null,
-            consoleMsg: this.consoleMsgBuff
+            consoleMsg: this.consoleMsgBuff,
+            getInputValue:'Scratch 3.0 GUI'
+
         };
     }
     clearConsole(){
@@ -134,7 +136,13 @@ class GUI extends React.Component {
         this.setState({showPopups:!this.state.showPopups}); //zbl 新建项目的的值
     }
     toggelStage(){
-        this.setState({showStage: !this.state.showStage});
+        this.setState({showStage: !this.state.showStage}); //点击显示新建项目的弹出框
+    }
+    onChange(projectName){
+        this.setState({getInputValue:projectName.target.value});  //获取input输入框的值
+    }
+    reloadPlay(){
+        document.location.reload(true);   //重做
     }
     render () {
         if (this.state.loadingError) {
@@ -158,6 +166,9 @@ class GUI extends React.Component {
                 showArduinoPanel={this.state.showArduinoPanel}
                 showPopups={this.state.showPopups}
                 vm={vm}
+                getInputValue={this.state.getInputValue}
+                onChange={this.onChange}
+                reloadPlay={this.reloadPlay}
                 serialDev={this.state.portDev}
                 connectedPort={this.state.connectedPort}
                 refreshPort={this.refreshPort}
@@ -176,6 +187,7 @@ GUI.propTypes = {
     ...GUIComponent.propTypes,
     fetchingProject: PropTypes.bool,
     toggleArduinoPanel: PropTypes.func,
+    toggePoopup:PropTypes.func,
     portReadLine: PropTypes.func,
     importInfoVisible: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
@@ -183,6 +195,9 @@ GUI.propTypes = {
     previewInfoVisible: PropTypes.bool,
     projectData: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     vm: PropTypes.instanceOf(VM),
+    getInputValue:PropTypes.string,
+    onChange:PropTypes.func,
+    reloadPlay:PropTypes.func,
     kb:PropTypes.instanceOf(KittenBlock)
 };
 

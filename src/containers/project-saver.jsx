@@ -24,16 +24,22 @@ class ProjectSaver extends React.Component {
             'saveProject'
         ]);
     }
+/*    componentWillReceiveProps(nextProps, nextState){
+        this.setState({
+            projectName: nextProps.projectName
+        })
+    }*/
     saveProject () {
         const saveLink = document.createElement('a');
         document.body.appendChild(saveLink);
+        //console.log(this.props.getInputValue);
 
         this.props.vm.saveProjectSb3().then(content => {
             // TODO user-friendly project name
             // File name: project-DATE-TIME
-            const date = new Date();
-            const timestamp = `${date.toLocaleDateString()}-${date.toLocaleTimeString()}`;
-            const filename = `untitled-project-${timestamp}.sb3`;
+            //const date = new Date();
+            //const timestamp = `${date.toLocaleDateString()}-${date.toLocaleTimeString()}`;
+            const filename = `${this.props.getInputValue}.sb3`;
 
             // Use special ms version if available to get it working on Edge.
             if (navigator.msSaveOrOpenBlob) {
@@ -57,7 +63,9 @@ class ProjectSaver extends React.Component {
             /* eslint-enable no-unused-vars */
             ...props
         } = this.props;
-        return this.props.children(this.saveProject, props);
+        return(
+            this.props.children(this.saveProject, props)
+        )
     }
 }
 
