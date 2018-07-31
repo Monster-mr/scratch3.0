@@ -28,23 +28,27 @@ class PopupComponent extends React.Component {
         var showPopup = this.state.showPopup?"block":"none";
         var stylePop={display: showPopup, width: '300px', height: '150px', background: '#ffffff', position: 'absolute', left: '50%',
             top: '70px', marginLeft: '-150px', boxShadow: '10px 10px 8px #888888', zIndex:'99999',};
-        var popupTxt={width:'300px', height:'40px', lineHeight: '40px', fontSize: '22px', textAlign: 'center', marginTop:'20px',};
-        var popupBtn={marginTop: '55px',};
-        var btnButton={width: '80px', textAlign: 'center', marginLeft: '15px', overflow: 'hidden',}
+        var popupTxt={width:'300px', height:'40px', lineHeight: '40px', fontSize: '16px', textAlign: 'center', marginTop:'20px',};
+        var popupBtn={marginTop: '55px',marginLeft:'20px',};
+        var btnButton={width: '100px', textAlign: 'center', marginLeft: '20px', overflow: 'hidden',float:'left',}
         return (
-            <div style={stylePop}>
-                <div style={popupTxt}>请您做出选择</div>
+            <div style={stylePop} onMouseLeave={this.props.togglePopup}>
+                <div style={popupTxt}>您已作出修改，是否要保存</div>
                 <div style={popupBtn}>
-                        <ProjectSaver>{(saveProject, saveProps) => (
-                        <button
-                            style={btnButton}
-                            onClick={saveProject}
-                            {...saveProps}
-                        >保存修改
+                        <ProjectSaver getInputValue={this.props.getInputValue}
+                                      togglePopup={this.props.togglePopup}>{(saveProject, saveProps) => (
+                            <button
+                                style={btnButton}
+                                onClick={saveProject}
+                                {...saveProps}
+                            >是
+                            </button>
+                        )}</ProjectSaver>
+                        <button style={btnButton}
+                                onClick={this.props.reloadPlay}
+                        >否
                         </button>
-                    )}</ProjectSaver>
-                    <button style={btnButton}>新建项目</button>
-                    <button style={btnButton} onClick={this.props.togglePopup}>取消操作</button>
+                   {/* <button style={btnButton} onClick={this.props.togglePopup}>取消操作</button>*/}
                 </div>
             </div>
         )

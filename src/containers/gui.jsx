@@ -28,7 +28,7 @@ import GUIComponent from '../components/gui/gui.jsx';
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','togglePopup']);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','togglePopup',"onChange","reloadPlay",]);
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
@@ -36,7 +36,8 @@ class GUI extends React.Component {
             showArduinoPanel: false,
             showStage: true,
             errorMessage: '',
-            showPopups:false
+            showPopups:false,
+            getInputValue:'Scratch 3.0 GUI'
         };
     }
     componentDidMount () {
@@ -79,7 +80,13 @@ class GUI extends React.Component {
         this.setState({showPopups:!this.state.showPopups}); //zbl 新建项目的的值
     }
     toggelStage(){
-        this.setState({showStage: !this.state.showStage});
+        this.setState({showStage: !this.state.showStage}); //点击显示新建项目的弹出框
+    }
+    onChange(projectName){
+        this.setState({getInputValue:projectName.target.value});  //获取input输入框的值
+    }
+    reloadPlay(){
+        document.location.reload(true);   //重做
     }
     render () {
         if (this.state.loadingError) {
@@ -102,6 +109,9 @@ class GUI extends React.Component {
                 showArduinoPanel={this.state.showArduinoPanel}
                 showPopups={this.state.showPopups}
                 vm={vm}
+                getInputValue={this.state.getInputValue}
+                onChange={this.onChange}
+                reloadPlay={this.reloadPlay}
                 {...componentProps}
             >
                 {children}
@@ -120,7 +130,10 @@ GUI.propTypes = {
     onSeeCommunity: PropTypes.func,
     previewInfoVisible: PropTypes.bool,
     projectData: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    vm: PropTypes.instanceOf(VM)
+    vm: PropTypes.instanceOf(VM),
+    getInputValue:PropTypes.string,
+    onChange:PropTypes.func,
+    reloadPlay:PropTypes.func
 };
 
 GUI.defaultProps = GUIComponent.defaultProps;

@@ -14,6 +14,8 @@ class Popup extends React.Component {
             <PopupComponent
                 showPopup={this.props.showPopup}
                 togglePopup={this.props.togglePopup}
+                getInputValue={this.props.getInputValue}
+                reloadPlay={this.props.reloadPlay}
                 {...props}
             />
         );

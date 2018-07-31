@@ -85,6 +85,9 @@ const GUIComponent = props => {
         toggleArduinoPanel,
         togglePopup,
         showPopups,
+        getInputValue,
+        onChange,
+        reloadPlay,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -132,7 +135,9 @@ const GUIComponent = props => {
                 ): null}
                 {togglePopup ? (
                     <Popup showPopup={props.showPopups}
-                    togglePopup={props.togglePopup}/>  //zbl 点击新建项目的传值
+                    togglePopup={props.togglePopup}
+                           getInputValue={props.getInputValue}
+                           reloadPlay={props.reloadPlay}/>  //zbl 点击新建项目的传值
                 ): null}
                 {isRendererSupported ? null : (
                     <WebGlModal />
@@ -160,6 +165,9 @@ const GUIComponent = props => {
                     onSeeCommunity={onSeeCommunity}
                     toggleArduinoPanel={toggleArduinoPanel}
                     togglePopup={togglePopup}
+                    getInputValue={getInputValue}
+                    onChange={onChange}
+                    reloadPlay={reloadPlay}
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
@@ -173,54 +181,54 @@ const GUIComponent = props => {
                                 onSelect={onActivateTab}
                             >
                                 <TabList className={tabClassNames.tabList}>
-                                    <Tab className={tabClassNames.tab}>
-                                        <img
-                                            draggable={false}
-                                            src={codeIcon}
-                                        />
+                                <Tab className={tabClassNames.tab}>
+                                    <img
+                                        draggable={false}
+                                        src={codeIcon}
+                                    />
+                                    <FormattedMessage
+                                        defaultMessage="Code"
+                                        description="Button to get to the code panel"
+                                        id="gui.gui.codeTab"
+                                    />
+                                </Tab>
+                                <Tab
+                                    className={tabClassNames.tab}
+                                    onClick={onActivateCostumesTab}
+                                >
+                                    <img
+                                        draggable={false}
+                                        src={costumesIcon}
+                                    />
+                                    {targetIsStage ? (
                                         <FormattedMessage
-                                            defaultMessage="Code"
-                                            description="Button to get to the code panel"
-                                            id="gui.gui.codeTab"
+                                            defaultMessage="Backdrops"
+                                            description="Button to get to the backdrops panel"
+                                            id="gui.gui.backdropsTab"
                                         />
-                                    </Tab>
-                                    <Tab
-                                        className={tabClassNames.tab}
-                                        onClick={onActivateCostumesTab}
-                                    >
-                                        <img
-                                            draggable={false}
-                                            src={costumesIcon}
-                                        />
-                                        {targetIsStage ? (
-                                            <FormattedMessage
-                                                defaultMessage="Backdrops"
-                                                description="Button to get to the backdrops panel"
-                                                id="gui.gui.backdropsTab"
-                                            />
-                                        ) : (
-                                            <FormattedMessage
-                                                defaultMessage="Costumes"
-                                                description="Button to get to the costumes panel"
-                                                id="gui.gui.costumesTab"
-                                            />
-                                        )}
-                                    </Tab>
-                                    <Tab
-                                        className={tabClassNames.tab}
-                                        onClick={onActivateSoundsTab}
-                                    >
-                                        <img
-                                            draggable={false}
-                                            src={soundsIcon}
-                                        />
+                                    ) : (
                                         <FormattedMessage
-                                            defaultMessage="Sounds"
-                                            description="Button to get to the sounds panel"
-                                            id="gui.gui.soundsTab"
+                                            defaultMessage="Costumes"
+                                            description="Button to get to the costumes panel"
+                                            id="gui.gui.costumesTab"
                                         />
-                                    </Tab>
-                                </TabList>
+                                    )}
+                                </Tab>
+                                <Tab
+                                    className={tabClassNames.tab}
+                                    onClick={onActivateSoundsTab}
+                                >
+                                    <img
+                                        draggable={false}
+                                        src={soundsIcon}
+                                    />
+                                    <FormattedMessage
+                                        defaultMessage="Sounds"
+                                        description="Button to get to the sounds panel"
+                                        id="gui.gui.soundsTab"
+                                    />
+                                </Tab>
+                            </TabList>
                                 <TabPanel className={tabClassNames.tabPanel}>
                                     <Box className={styles.blocksWrapper}>
                                         <Blocks

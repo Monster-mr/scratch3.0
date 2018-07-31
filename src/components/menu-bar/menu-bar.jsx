@@ -137,81 +137,83 @@ MenuBarMenu.propTypes = {
     place: PropTypes.oneOf(['left', 'right'])
 };
 
-const MenuBar = props => (
-    <Box className={styles.menuBar}>
-        <div className={styles.mainMenu}>
-            <div className={styles.fileGroup}>
-                <div className={classNames(styles.menuBarItem)}>
-                    <img
-                        alt="Scratch"
-                        className={styles.scratchLogo}
-                        draggable={false}
-                        src={scratchLogo}
-                    />
-                </div>
-                {/*隐藏的*/}
-                <div
-                    className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
-                        [styles.active]: props.languageMenuOpen
-                    })}
-                    onMouseUp={props.onClickLanguage}
-                >
-                    <MenuBarItemTooltip
-                        enable={window.location.search.indexOf('enable=language') !== -1}
-                        id="menubar-selector"
-                        place="right"
+const MenuBar = props => {
+
+    return (
+        <Box className={styles.menuBar}>
+            <div className={styles.mainMenu}>
+                <div className={styles.fileGroup}>
+                    <div className={classNames(styles.menuBarItem)}>
+                        <img
+                            alt="Scratch"
+                            className={styles.scratchLogo}
+                            draggable={false}
+                            src={scratchLogo}
+                        />
+                    </div>
+                    {/*隐藏的*/}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
+                            [styles.active]: props.languageMenuOpen
+                        })}
+                        onMouseUp={props.onClickLanguage}
                     >
-                        <div
-                            aria-label={props.intl.formatMessage(ariaMessages.language)}
-                            className={classNames(styles.languageMenu)}
+                        <MenuBarItemTooltip
+                            enable={window.location.search.indexOf('enable=language') !== -1}
+                            id="menubar-selector"
+                            place="right"
                         >
-                            <img
-                                className={styles.languageIcon}
-                                src={languageIcon}
-                            />
-                            <img
-                                className={styles.dropdownCaret}
-                                src={dropdownCaret}
+                            <div
+                                aria-label={props.intl.formatMessage(ariaMessages.language)}
+                                className={classNames(styles.languageMenu)}
+                            >
+                                <img
+                                    className={styles.languageIcon}
+                                    src={languageIcon}
+                                />
+                                <img
+                                    className={styles.dropdownCaret}
+                                    src={dropdownCaret}
+                                />
+                            </div>
+                            <MenuBarMenu
+                                open={props.languageMenuOpen}
+                                onRequestClose={props.onRequestCloseLanguage}
+                            >
+                                <LanguageSelector/>
+                            </MenuBarMenu>
+
+                        </MenuBarItemTooltip>
+                    </div>
+                    {/*         <Popup>
+
+                </Popup>*/}
+                    {/*fengedian 文件wenjian*/}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: props.fileMenuOpen
+                        })}
+                        onMouseUp={props.onClickFile}
+                    >
+                        <div className={classNames(styles.fileMenu)}>
+                            <FormattedMessage
+                                defaultMessage="File"
+                                description="Text for file dropdown menu"
+                                id="gui.menuBar.file"
                             />
                         </div>
                         <MenuBarMenu
-                            open={props.languageMenuOpen}
-                            onRequestClose={props.onRequestCloseLanguage}
+                            open={props.fileMenuOpen}
+                            onRequestClose={props.onRequestCloseFile}
                         >
-                            <LanguageSelector />
-                        </MenuBarMenu>
-
-                    </MenuBarItemTooltip>
-                </div>
-       {/*         <Popup>
-
-                </Popup>*/}
-                {/*fengedian 文件wenjian*/}
-                <div
-                    className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.fileMenuOpen
-                    })}
-                    onMouseUp={props.onClickFile}
-                >
-                    <div className={classNames(styles.fileMenu)}>
-                        <FormattedMessage
-                            defaultMessage="File"
-                            description="Text for file dropdown menu"
-                            id="gui.menuBar.file"
-                        />
-                    </div>
-                    <MenuBarMenu
-                        open={props.fileMenuOpen}
-                        onRequestClose={props.onRequestCloseFile}
-                    >
-                        <MenuItem id='Popup' onClick={props.togglePopup}>
-                            <FormattedMessage
-                                defaultMessage="New"
-                                description="Menu bar item for creating a new project"
-                                id="gui.menuBar.new"
-                            />
-                        </MenuItem>
-                       {/* 这个是添加了一个改变按钮颜色的状态<MenuItemTooltip id="new">
+                            <MenuItem id='Popup' onClick={props.togglePopup}>
+                                <FormattedMessage
+                                    defaultMessage="New"
+                                    description="Menu bar item for creating a new project"
+                                    id="gui.menuBar.new"
+                                />
+                            </MenuItem>
+                            {/* 这个是添加了一个改变按钮颜色的状态<MenuItemTooltip id="new">
                             <MenuItem>
                                 <FormattedMessage
                                     defaultMessage="New"
@@ -220,7 +222,7 @@ const MenuBar = props => (
                                 />
                             </MenuItem>
                         </MenuItemTooltip>*/}
-       {/*                 <MenuSection>
+                            {/*                 <MenuSection>
                             <MenuItemTooltip id="save">
                                 <MenuItem>
                                     <FormattedMessage
@@ -239,68 +241,68 @@ const MenuBar = props => (
                                     /></MenuItem>
                             </MenuItemTooltip>
                         </MenuSection>*/}
-                        <MenuSection>{/*两个实现的项*/}
-                            <ProjectLoader>{(renderFileInput, loadProject, loadProps) => (
-                                <MenuItem
-                                    onClick={loadProject}
-                                    {...loadProps}
-                                >负载均衡
-                                  {/*  <FormattedMessage
+                            <MenuSection>{/*两个实现的项*/}
+                                <ProjectLoader>{(renderFileInput, loadProject, loadProps) => (
+                                    <MenuItem
+                                        onClick={loadProject}
+                                        {...loadProps}
+                                    >文件上传
+                                        {/*  <FormattedMessage
                                         defaultMessage="Load from your computer"
                                         description="Menu bar item for uploading a project from your computer"
                                         id="gui.menuBar.uploadFromComputer"
                                     />*/}
-                                    {renderFileInput()}
-                                </MenuItem>
-                            )}</ProjectLoader>
-                            <ProjectSaver>{(saveProject, saveProps) => (
-                                <MenuItem
-                                    onClick={saveProject}
-                                    {...saveProps}
-                                >保存文件
-                                    {/*<FormattedMessage
+                                        {renderFileInput()}
+                                    </MenuItem>
+                                )}</ProjectLoader>
+                                <ProjectSaver getInputValue={props.getInputValue}>{(saveProject, saveProps) => (
+                                    <MenuItem
+                                        onClick={saveProject}
+                                        {...saveProps}
+                                    >保存文件
+                                        {/*<FormattedMessage
                                         defaultMessage="Save to your computer"
                                         description="Menu bar item for downloading a project to your computer"
                                         id="gui.menuBar.downloadToComputer"
                                     />*/}
-                                </MenuItem>
-                            )}</ProjectSaver>
-                        </MenuSection>
-                    </MenuBarMenu>
-                </div>
-                {/*fengdian  hahah 编辑栏*/}
-                <div
-                className={classNames(styles.menuBarItem, styles.hoverable, {
-                    [styles.active]: props.editMenuOpen
-                })}
-                onMouseUp={props.onClickEdit}
-            >
-                <div className={classNames(styles.editMenu)}>
-                    <FormattedMessage
-                        defaultMessage="Edit"
-                        description="Text for edit dropdown menu"
-                        id="gui.menuBar.edit"
-                    />
-                </div>
-                <MenuBarMenu
-                    open={props.editMenuOpen}
-                    onRequestClose={props.onRequestCloseEdit}
-                >
-                    <MenuItem>{/*撤销*/}
-                        <FormattedMessage
-                            defaultMessage="Undo"
-                            description="Menu bar item for undoing"
-                            id="gui.menuBar.undo"
-                        />
-                    </MenuItem>
-                    <MenuItem>{/*重做*/}
-                        <FormattedMessage
-                            defaultMessage="Redo"
-                            description="Menu bar item for redoing"
-                            id="gui.menuBar.redo"
-                        />
-                    </MenuItem>
-                  {/*比上面代码多了一层包裹  <MenuItemTooltip id="undo">
+                                    </MenuItem>
+                                )}</ProjectSaver>
+                            </MenuSection>
+                        </MenuBarMenu>
+                    </div>
+                    {/*fengdian  hahah 编辑栏*/}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: props.editMenuOpen
+                        })}
+                        onMouseUp={props.onClickEdit}
+                    >
+                        <div className={classNames(styles.editMenu)}>
+                            <FormattedMessage
+                                defaultMessage="Edit"
+                                description="Text for edit dropdown menu"
+                                id="gui.menuBar.edit"
+                            />
+                        </div>
+                        <MenuBarMenu
+                            open={props.editMenuOpen}
+                            onRequestClose={props.onRequestCloseEdit}
+                        >
+                            <MenuItem>{/*撤销*/}
+                                <FormattedMessage
+                                    defaultMessage="Undo"
+                                    description="Menu bar item for undoing"
+                                    id="gui.menuBar.undo"
+                                />
+                            </MenuItem>
+                            <MenuItem   onClick={props.reloadPlay}>{/*重做*/}
+                                <FormattedMessage
+                                    defaultMessage="Redo"
+                                    description="Menu bar item for redoing"
+                                    id="gui.menuBar.redo"
+                                />
+                            </MenuItem>
+                            {/*比上面代码多了一层包裹  <MenuItemTooltip id="undo">
                         <MenuItem>
                             <FormattedMessage
                                 defaultMessage="Undo"
@@ -318,7 +320,7 @@ const MenuBar = props => (
                             />
                         </MenuItem>
                     </MenuItemTooltip>*/}
-          {/*          <MenuSection>
+                            {/*          <MenuSection>
                         <MenuItemTooltip id="turbo">
                             <MenuItem>
                                 <FormattedMessage
@@ -329,88 +331,84 @@ const MenuBar = props => (
                             </MenuItem>
                         </MenuItemTooltip>
                     </MenuSection>*/}
-                </MenuBarMenu>
+                        </MenuBarMenu>
+                    </div>
+
+
+                    {/*fengedian  */}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: props.hardwareMenuOpen                     //wlq
+                        })}
+                        onMouseUp={props.onClickHardware}
+                    >
+                        <div className={classNames(styles.editMenu)}>
+                            Hardware
+                        </div>
+                        <MenuBarMenu
+                            open={props.hardwareMenuOpen}
+                            onRequestClose={props.onRequestCloseHardware}
+                        >
+                            <MenuBarItemTooltip id="Arduinopanel" enable={true}>
+                                <MenuItem
+                                    onClick={props.toggleArduinoPanel}
+                                    enable={true}
+
+                                >
+                                    Arduino
+                                </MenuItem>
+                            </MenuBarItemTooltip>
+
+                        </MenuBarMenu>
+                    </div>
                 </div>
-
-
 
                 {/*fengedian  */}
                 <div
                     className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.hardwareMenuOpen                     //wlq
+                        [styles.active]: props.connectMenuOpen                      //wlq
                     })}
-                    onMouseUp={props.onClickHardware}
+                    onMouseUp={props.onClickConnect}
                 >
                     <div className={classNames(styles.editMenu)}>
-                        Hardware
+                        Connect
                     </div>
                     <MenuBarMenu
-                        open={props.hardwareMenuOpen}
-                        onRequestClose={props.onRequestCloseHardware}
+                        open={props.connectMenuOpen}
+                        onRequestClose={props.onRequestCloseConnect}
                     >
-                        <MenuBarItemTooltip id="Arduinopanel" enable={true}>
+                        <MenuBarItemTooltip id="usb" enable={true}>
                             <MenuItem
-                                onClick={props.toggleArduinoPanel}
-                                enable={true}
+                                // onClick={Arduino}
 
                             >
-                              Arduino
+                                端口
+                            </MenuItem>
+                        </MenuBarItemTooltip>
+                        <MenuBarItemTooltip id="wifi" enable={true}>
+                            <MenuItem
+                                // onClick={Arduino}
+
+                            >
+                                wifi
                             </MenuItem>
                         </MenuBarItemTooltip>
 
                     </MenuBarMenu>
                 </div>
             </div>
-
-            {/*fengedian  */}
-            <div
-                className={classNames(styles.menuBarItem, styles.hoverable, {
-                    [styles.active]: props.connectMenuOpen                      //wlq
-                })}
-                onMouseUp={props.onClickConnect}
-            >
-                <div className={classNames(styles.editMenu)}>
-                    Connect
-                </div>
-                <MenuBarMenu
-                    open={props.connectMenuOpen}
-                    onRequestClose={props.onRequestCloseConnect}
-                >
-                    <MenuBarItemTooltip id="usb" enable={true}>
-                        <MenuItem
-                            // onClick={Arduino}
-
-                        >
-                            端口
-                        </MenuItem>
-                    </MenuBarItemTooltip>
-                    <MenuBarItemTooltip id="wifi" enable={true}>
-                        <MenuItem
-                            // onClick={Arduino}
-
-                        >
-                            wifi
-                        </MenuItem>
-                    </MenuBarItemTooltip>
-
-                </MenuBarMenu>
-            </div>
-        </div>
-
             {/*fengedian*/}
-            <Divider className={classNames(styles.divider)} />
+            <Divider className={classNames(styles.divider)}/>
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field" enable={true}>
                     <input
-                       /* disabled 让文本框可输入*/
+                        onChange={(projectName)=>props.onChange(projectName)}
+                        /* disabled 让文本框可输入*/
                         className={classNames(styles.titleField)}
                         placeholder="Untitled-1"
-                         //ref={ (input) => this.myInput = input }
-                        // value={this.myInput.value}
                     />
                 </MenuBarItemTooltip>
             </div>
-
             {/*fengeidan隐藏掉的分享*/}
             <div className={classNames(styles.menuBarItem, styles.hide)}>
                 <MenuBarItemTooltip id="share-button">
@@ -454,83 +452,89 @@ const MenuBar = props => (
                     </MenuBarItemTooltip>
                 }
             </div>
-        {/*大的分享分割点 意见反馈和使用指南*/}
-        <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
-            <a
-                className={styles.feedbackLink}
-                href="https://scratch.mit.edu/discuss/topic/299791/"
-                rel="noopener noreferrer"
-                target="_blank"
-            >
-                <Button
-                    className={styles.feedbackButton}
-                    iconSrc={feedbackIcon}
+            {/*大的分享分割点 意见反馈和使用指南*/}
+            <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
+                <a
+                    className={styles.feedbackLink}
+                    href="https://scratch.mit.edu/discuss/topic/299791/"
+                    rel="noopener noreferrer"
+                    target="_blank"
                 >
-                    <FormattedMessage
-                        defaultMessage="Give Feedback"
-                        description="Label for feedback form modal button"
-                        id="gui.menuBar.giveFeedback"
-                    />
-                </Button>
-            </a>
-        </div>
-        <div className={styles.accountInfoWrapper}>
-            <div
-                aria-label={props.intl.formatMessage(ariaMessages.howTo)}
-                className={classNames(styles.menuBarItem, styles.hoverable)}
-                onClick={props.onOpenTipLibrary}
-            >
-                <Button  className={classNames(styles.btn)}>
-                    使用指南
-                </Button>
-               {/* <img
+                    <Button
+                        className={styles.feedbackButton}
+                        iconSrc={feedbackIcon}
+                    >
+                        <FormattedMessage
+                            defaultMessage="Give Feedback"
+                            description="Label for feedback form modal button"
+                            id="gui.menuBar.giveFeedback"
+                        />
+                    </Button>
+                </a>
+            </div>
+            <div className={styles.accountInfoWrapper}>
+                <div
+                    aria-label={props.intl.formatMessage(ariaMessages.howTo)}
+                    className={classNames(styles.menuBarItem)}
+                    onClick={props.onOpenTipLibrary}
+                >
+                    <Button
+                        className={classNames(styles.btn)}
+                    >
+                        使用指南
+                    </Button>
+                   {/* <Button className={classNames(styles.btn)}>
+                        使用指南
+                    </Button>
+                     <img
                     className={styles.helpIcon}
                     src={helpIcon}
                 />*/}
-            </div>
-            <MenuBarItemTooltip id="mystuff">
-                <div
-                    className={classNames(
-                        styles.menuBarItem,
-                        styles.hoverable,
-                        styles.mystuffButton,
-                        styles.hide
-                    )}
-                >
-                    <img
-                        className={styles.mystuffIcon}
-                        src={mystuffIcon}
-                    />
                 </div>
-            </MenuBarItemTooltip>
-            <MenuBarItemTooltip
-                id="account-nav"
-                place="left"
-            >
-                <div
-                    className={classNames(
-                        styles.menuBarItem,
-                        styles.hoverable,
-                        styles.accountNavMenu,
-                        styles.hide
-                    )}
+                <MenuBarItemTooltip id="mystuff">
+                    <div
+                        className={classNames(
+                            styles.menuBarItem,
+                            styles.hoverable,
+                            styles.mystuffButton,
+                            styles.hide
+                        )}
+                    >
+                        <img
+                            className={styles.mystuffIcon}
+                            src={mystuffIcon}
+                        />
+                    </div>
+                </MenuBarItemTooltip>
+                <MenuBarItemTooltip
+                    id="account-nav"
+                    place="left"
                 >
-                    <img
-                        className={styles.profileIcon}
-                        src={profileIcon}
-                    />
-                    <span>
+                    <div
+                        className={classNames(
+                            styles.menuBarItem,
+                            styles.hoverable,
+                            styles.accountNavMenu,
+                            styles.hide
+                        )}
+                    >
+                        <img
+                            className={styles.profileIcon}
+                            src={profileIcon}
+                        />
+                        <span>
                         {'scratch-cat' /* @todo username */}
                     </span>
-                    <img
-                        className={styles.dropdownCaretIcon}
-                        src={dropdownCaret}
-                    />
-                </div>
-            </MenuBarItemTooltip>
-        </div>
-    </Box>
-);
+                        <img
+                            className={styles.dropdownCaretIcon}
+                            src={dropdownCaret}
+                        />
+                    </div>
+                </MenuBarItemTooltip>
+            </div>
+        </Box>
+    );
+};
 
 MenuBar.propTypes = {
     hardwareMenuOpen: PropTypes.bool,

@@ -27,7 +27,7 @@ const messages = defineMessages({
         defaultMessage: 'Retake Photo',
         description: 'A button that allows the user to take the picture again, replacing the old one',
         id: 'gui.cameraModal.retakePhoto'
-    },
+},
     save: {
         defaultMessage: 'Save',
         description: 'A button that allows the user to save the photo they took as a costume',
