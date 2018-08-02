@@ -99,11 +99,12 @@ module.exports = [
             'compatibilitytesting': './src/playground/compatibility-testing.jsx',
             'player': './src/playground/player.jsx'
         },
-        node:{
-            fs:"empty",
-            dgram:"empty",
-            child_process:"empty"
-        },
+        target:"node-webkit",
+        // node:{
+        //     fs:"empty",
+        //     dgram:"empty",
+        //     child_process:"empty"
+        // },
         output: {
             path: path.resolve(__dirname, 'nwjs/app'),
             filename: '[name].js'
@@ -167,7 +168,7 @@ module.exports = [
                 to: 'static'
             }]),
             new CopyWebpackPlugin([{
-                from: 'node_modules/scratch-blocks/media',
+                from: 'scratch-blocks/media',
                 to: 'static/blocks-media'
             }]),
             new CopyWebpackPlugin([{
@@ -211,12 +212,12 @@ module.exports = [
             },
             plugins: base.plugins.concat([
                 new CopyWebpackPlugin([{
-                    from: 'node_modules/scratch-blocks/media',
+                    from: 'scratch-blocks/media',
                     to: 'static/blocks-media'
                 }]),
                 new CopyWebpackPlugin([{
                     from: 'extension-worker.{js,js.map}',
-                    context: 'node_modules/scratch-vm/dist/web'
+                    context: 'scratch-vm/dist/web'
                 }])
             ])
         })) : []

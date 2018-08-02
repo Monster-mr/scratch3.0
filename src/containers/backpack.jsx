@@ -14,7 +14,7 @@ import DragConstants from '../lib/drag-constants';
 
 import {connect} from 'react-redux';
 import storage from '../lib/storage';
-import VM from 'scratch-vm';
+import VM from '../../scratch-vm';
 
 class Backpack extends React.Component {
     constructor (props) {

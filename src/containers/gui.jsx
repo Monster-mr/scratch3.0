@@ -1,13 +1,13 @@
 import AudioEngine from 'scratch-audio';
 import PropTypes from 'prop-types';
 import React from 'react';
-import VM from 'scratch-vm';
+import VM from '../../scratch-vm';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import bindAll from 'lodash.bindall';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {openExtensionLibrary} from '../reducers/modals';
-import  KittenBlock  from '../../pc/kittenblock.js';
+import  KittenBlock  from '../../kittenblock-pc';
 import {
     activateTab,
     BLOCKS_TAB_INDEX,

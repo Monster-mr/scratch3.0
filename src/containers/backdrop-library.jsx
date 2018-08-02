@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {defineMessages, injectIntl, intlShape} from 'react-intl';
 import {connect} from 'react-redux';
-import VM from 'scratch-vm';
+import VM from '../../scratch-vm';
 
 import {
     activateTab,
