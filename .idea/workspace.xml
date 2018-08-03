@@ -3391,7 +3391,6 @@
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scratch-vm/src/extensions/scratch3_music/assets/instruments/9-trombone/60.mp3" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scratch-vm/src/extensions/scratch3_speech/assets/speech-rec-end.mp3" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scratch-vm/src/extensions/scratch3_speech/assets/speech-rec-start.mp3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/nwjs/arduino/arduino.l4j.ini" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/nwjs/arduino/arduino_debug.l4j.ini" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/nwjs/arduino/drivers/AdafruitCircuitPlayground.inf" />
@@ -7380,7 +7379,7 @@
       <workItem from="1533192409680" duration="5397000" />
       <workItem from="1533200768512" duration="2400000" />
       <workItem from="1533259277219" duration="830000" />
-      <workItem from="1533265655009" duration="108000" />
+      <workItem from="1533265655009" duration="302000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <created>1531213509987</created>
@@ -7431,11 +7430,18 @@
       <option name="project" value="LOCAL" />
       <updated>1533203769603</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="修復bug">
+      <created>1533265996325</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1533265996325</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="286131000" />
+    <option name="totallyTimeSpent" value="286325000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
