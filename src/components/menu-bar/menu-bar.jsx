@@ -547,6 +547,7 @@ const MenuBar = props => {
                             styles.hide
                         )}
                     >
+
                         <img
                             className={styles.profileIcon}
                             src={profileIcon}
