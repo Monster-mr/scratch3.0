@@ -3,6 +3,7 @@
 
 # NPM
 /node_modules
+/nwjs/*
 npm-*
 
 # Testing
@@ -17,3 +18,58 @@ npm-*
 # generated translation files
 /translations
 /locale
+
+# pc
+# NPM
+/kittenblock-pc/node_modules
+/kittenblock-pc/npm-*
+
+/nwjs
+
+# Testing
+/kittenblock-pc/.nyc_output
+/kittenblock-pc/coverage
+
+# Build
+/kittenblock-pc/build
+/kittenblock-pc/.opt-in
+
+
+
+# block
+
+# NPM
+/scratch-blocks/node_modules
+/scratch-blocks/npm-*
+
+# Localization / I18N
+/scratch-blocks/common.pyc
+/scratch-blocks/.settings
+/scratch-blocks/.project
+/scratch-blocks/*.pyc
+/scratch-blocks/*.komodoproject
+/scratch-blocks/nbproject/private/
+
+# Editor
+/scratch-blocks/.vscode
+
+/scratch-blocks/accessible/*
+/scratch-blocks/dist
+/scratch-blocks/msg/js/*
+!/scratch-blocks/msg/js/en.js
+/scratch-blocks/msg/json/*
+!/scratch-blocks/msg/json/en.json
+/scratch-blocks/blockly_compressed_horizontal.js
+/scratch-blocks/blockly_compressed_vertical.js
+/scratch-blocks/blockly_uncompressed_horizontal.js
+/scratch-blocks/blockly_uncompressed_vertical.js
+/scratch-blocks/blocks_compressed_horizontal.js
+/scratch-blocks/blocks_compressed_vertical.js
+/scratch-blocks/blocks_compressed.js
+/scratch-blocks/gh-pages/main.js
+/scratch-blocks/gh-pages/playgrounds
+/scratch-blocks/gh-pages/Gemfile.lock
+/scratch-blocks/gh-pages/closure-library
+/scratch-blocks/gh-pages/_site
+/scratch-blocks/*compiler*.jar
+/scratch-blocks/local_blockly_compressed_vertical.js
