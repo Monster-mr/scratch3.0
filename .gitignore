@@ -1,6 +1,7 @@
 # Mac OS
 .DS_Store
 
+./idea
 # NPM
 /node_modules
 /nwjs/*
