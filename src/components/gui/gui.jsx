@@ -7,7 +7,7 @@ import {connect} from 'react-redux';
 import MediaQuery from 'react-responsive';
 import {Tab, Tabs, TabList, TabPanel} from 'react-tabs';
 import tabStyles from 'react-tabs/style/react-tabs.css';
-import VM from '../../../scratch-vm';
+import VM from 'scratch-vm';
 import Renderer from 'scratch-render';
 
 import Blocks from '../../containers/blocks.jsx';
@@ -39,6 +39,8 @@ import addExtensionIcon from './icon--extensions.svg';
 import codeIcon from './icon--code.svg';
 import costumesIcon from './icon--costumes.svg';
 import soundsIcon from './icon--sounds.svg';
+import defaultsDeep from "lodash.defaultsdeep";
+const shapeFromPropTypes = require('../../lib/shape-from-prop-types');
 
 const messages = defineMessages({
     addExtension: {
@@ -51,7 +53,7 @@ const messages = defineMessages({
 // Cache this value to only retrieve it once the first time.
 // Assume that it doesn't change for a session.
 let isRendererSupported = null;
-
+let myThis={Blocks:null};
 const GUIComponent = props => {
     const {
         activeTabIndex,
@@ -78,14 +80,20 @@ const GUIComponent = props => {
         previewInfoVisible,
         targetIsStage,
         consoleMsg,
+        code,
+        editorCode,
         soundsTabVisible,
         stageSizeMode,
         tipsLibraryVisible,
         vm,
+        kb,
         showArduinoPanel,
         toggleArduinoPanel,
+        clearConsole,
+        consoleSend,
         togglePopup,
         showPopups,
+        blocksProps,
         serialDev,
         getInputValue,
         onChange,
@@ -108,7 +116,6 @@ const GUIComponent = props => {
     if (isRendererSupported === null) {
         isRendererSupported = Renderer.isSupported();
     }
-
     return (<MediaQuery minWidth={layout.fullSizeMinWidth}>{isFullSize => {
         const stageSize = resolveStageSize(stageSizeMode, isFullSize);
 
@@ -133,7 +140,17 @@ const GUIComponent = props => {
                     <ImportModal />
                 ) : null}
                 {toggleArduinoPanel ? (
-                    <ArduinoPanel visible={showArduinoPanel} code={'#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n'} consoleMsg={consoleMsg} />
+                    <ArduinoPanel visible={showArduinoPanel}
+                                  codes = {myThis.Blocks}
+                                  code={code}
+                                  consoleMsg={props.consoleMsg}
+                                  clearConsole={props.clearConsole} //zbl
+                                  editorCode={editorCode}
+                                  uploadProj={props.uploadProj}//arduion upload
+                                  openIno={props.openIno}//open arduion
+                                  restoreFirmware={props.restoreFirmware}//3
+                                  updateEditorInstance={props.updateEditorInstance}
+                                  consoleSend={props.consoleSend}/>
                 ): null}
                 {togglePopup ? (
                     <Popup showPopup={props.showPopups}
@@ -174,7 +191,6 @@ const GUIComponent = props => {
                     getInputValue={getInputValue}
                     onChange={onChange}
                     reloadPlay={reloadPlay}
-
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
@@ -246,6 +262,10 @@ const GUIComponent = props => {
                                             }}
                                             stageSize={stageSize}
                                             vm={vm}
+                                            kb={kb}
+                                            ref={(Blocks)=>{myThis.Blocks=Blocks}}
+                                            showStage={props.showStage}
+                                            //blocksProps={shapeFromPropTypes(Blocks.propTypes, {omit: ['vm']})}
                                         />
                                     </Box>
                                     <Box className={styles.extensionButtonContainer}>
@@ -296,6 +316,7 @@ const GUIComponent = props => {
 };
 
 GUIComponent.propTypes = {
+   // blocksProps: shapeFromPropTypes(Blocks.propTypes, {omit: ['vm']}),//zbl8.6
     activeTabIndex: PropTypes.number,
     backdropLibraryVisible: PropTypes.bool,
     backpackOptions: PropTypes.shape({
@@ -334,6 +355,7 @@ GUIComponent.defaultProps = {
         visible: false
     },
     basePath: './',
+    blocksProps: {},
     stageSizeMode: STAGE_SIZE_MODES.large,
     vm: new VM()
 };

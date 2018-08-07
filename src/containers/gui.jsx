@@ -5,6 +5,13 @@ import VM from '../../scratch-vm';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import bindAll from 'lodash.bindall';
+//import defaultsDeep from 'lodash.defaultsdeep';
+//const shapeFromPropTypes = require('../lib/shape-from-prop-types');
+import Blocks from '../containers/blocks.jsx';
+//import Blocks from '../../containers/blocks.jsx';
+//import Blocks from  './blocks.jsx';
+
+//import shapeFromPropTypes from '../lib/shape-from-prop-types.js';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {openExtensionLibrary} from '../reducers/modals';
 import  KittenBlock  from '../../kittenblock-pc';
@@ -30,8 +37,10 @@ import {STAGE_SIZE_MODES} from "../lib/layout-constants";
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','togglePopup',"onChange","reloadPlay"]);
+        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
+        this.editor;
         this.state = {
             loading: !props.vm.initialized,
             loadingError: false,
@@ -43,18 +52,31 @@ class GUI extends React.Component {
             portDev: [],
             connectedPort: null,
             consoleMsg: this.consoleMsgBuff,
-            getInputValue:'Scratch 3.0 GUI'
-
+            getInputValue:'Scratch 3.0 GUI',
+            editorCode: '#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n',
         };
+    }
+
+    consoleSend(txt){   //zbl 获取值
+        this.sendCommonData(txt);
     }
     clearConsole(){
         this.consoleMsgBuff = [];
         this.setState({consoleMsg:this.consoleMsgBuff})
     }
     sendCommonData(msg){
-        this.props.kb.sendCmd(msg);
+      /*  this.props.kb.sendCmd(msg);
         this.consoleMsgBuff.push({msg:msg,color:"Gray"});
-        this.setState({consoleMsg:this.consoleMsgBuff})
+        this.setState({consoleMsg:this.consoleMsgBuff})*/
+        this.props.kb.sendCmd(msg);
+        if(msg instanceof Uint8Array){
+            var msg = Buffer.from(msg).toString('hex')
+            this.consoleMsgBuff.push({msg:msg,color:"Gray"});
+            this.setState({consoleMsg:this.consoleMsgBuff})
+        }else{
+            this.consoleMsgBuff.push({msg:msg,color:"Gray"});
+            this.setState({consoleMsg:this.consoleMsgBuff})
+        }
     }
     portReadLine(line){
         this.props.kb.arduino.parseLine(line);
@@ -103,7 +125,12 @@ class GUI extends React.Component {
             });
         }
     }
-
+    appendLog(msg,color){
+        if(!color)
+            color = "Gray";
+        this.consoleMsgBuff.push({msg:msg,color:color});
+        this.setState({consoleMsg:this.consoleMsgBuff})
+    }
     serialDevUpdate (data) {
         this.setState({portDev: data});
     }
@@ -144,6 +171,25 @@ class GUI extends React.Component {
     reloadPlay(){
         document.location.reload(true);   //重做
     }
+    updateEditorInstance(editor){
+        this.editor = editor.editor;
+    }
+/*    translateCode(){      //zbl arduion translate
+        var code = this.refs.Blocks.sb2cpp();
+        this.setState({editorCode:code});
+    }*/
+    uploadProject() {  //arduion upload
+        var code = this.editor.getValue();
+        this.props.kb.uploadProject(code,this.appendLog);
+    }
+    openIno(){     //arduion open arduion
+        var code = this.editor.getValue();
+        this.props.kb.openIno(code);
+    }
+    restoreFirmware(firmware){
+        var code = this.props.kb.loadFirmware(firmware.path);
+        this.setState({editorCode: code});
+    }
     render () {
         if (this.state.loadingError) {
             throw new Error(
@@ -155,12 +201,21 @@ class GUI extends React.Component {
             loadingStateVisible,
             projectData, // eslint-disable-line no-unused-vars
             vm,
+            kb,
             ...componentProps
         } = this.props;
+/*        blocksProps = defaultsDeep({}, blocksProps, {  ///zbl8.6
+            options: {
+                media: `${basePath}static/blocks-media/`
+            },
+            showStage: this.state.showStage
+        });*/
         return (
             <GUIComponent
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
+                clearConsole={this.clearConsole}//zbl
+                consoleSend={this.consoleSend}//zbl
                 togglePopup={this.togglePopup}
                 portReadLine={(line)=>this.portReadLine(line)}
                 showArduinoPanel={this.state.showArduinoPanel}
@@ -173,7 +228,16 @@ class GUI extends React.Component {
                 connectedPort={this.state.connectedPort}
                 refreshPort={this.refreshPort}
                 selectPort={this.selectPort}
-                kb={this.props.kb}
+          /*      translateCode={this.translateCode} //arduion translate*/
+                code={this.state.editorCode}
+                showStage={this.state.showStage}
+                updateEditorInstance={this.updateEditorInstance}
+                uploadProj={this.uploadProject}
+                openIno={this.openIno}   //arduion open
+                restoreFirmware={this.restoreFirmware}
+                editorCode={this.state.editorCode} //zbl 7
+                //kb={this.props.kb}
+                kb={kb}
                 consoleMsg={this.state.consoleMsg}
                 {...componentProps}
             >
@@ -183,10 +247,14 @@ class GUI extends React.Component {
     }
 }
 
+
 GUI.propTypes = {
     ...GUIComponent.propTypes,
+    //blocksProps: shapeFromPropTypes(Blocks.propTypes, {omit: ['vm']}),
     fetchingProject: PropTypes.bool,
     toggleArduinoPanel: PropTypes.func,
+    consoleSend:PropTypes.func,//zbl
+    clearConsole:PropTypes.func,
     toggePoopup:PropTypes.func,
     portReadLine: PropTypes.func,
     importInfoVisible: PropTypes.bool,
@@ -196,8 +264,13 @@ GUI.propTypes = {
     projectData: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     vm: PropTypes.instanceOf(VM),
     getInputValue:PropTypes.string,
+    editorCode:PropTypes.string,
     onChange:PropTypes.func,
     reloadPlay:PropTypes.func,
+/*    translateCode:PropTypes.func,*/
+    uploadProj:PropTypes.func,
+    openIno:PropTypes.func,
+    restoreFirmware:PropTypes.func,
     kb:PropTypes.instanceOf(KittenBlock)
 };
 
@@ -207,10 +280,11 @@ GUI.defaultProps = {
         host: null,
         visible: false
     },
-    basePath: './',
+    //basePath: './',        zbl 8.3
     headerBarProps: {},
+    blocksProps: {},
     stageSizeMode: STAGE_SIZE_MODES.large,
-    kb: new KittenBlock(),
+    kb: new KittenBlock,
     vm: new VM
 };
 

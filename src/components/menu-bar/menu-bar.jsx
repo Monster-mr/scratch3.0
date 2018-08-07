@@ -148,7 +148,7 @@ const MenuBar = props => {
     } = props;
     var portMenuItem;       //此处存在若干问题待考究
     // var portDropdownTxt;
-    if(connectedPort!=null){
+    if (connectedPort != null) {
         console.log("connectedport is null");
         // portDropdownTxt = props.connectedPort;
         portMenuItem =
@@ -156,7 +156,7 @@ const MenuBar = props => {
                 'path': props.connectedPort,
                 'type': 'disconnect'
             }} key={connectedPort}>Disconnect</MenuItem>;
-    }else{
+    } else {
         console.log(serialDev);
         portMenuItem =
             serialDev.map(dev => (
@@ -167,49 +167,49 @@ const MenuBar = props => {
             ));
         // portDropdownTxt = "Not Connected";
     }
-    return(
-    <Box className={styles.menuBar}>
-        <div className={styles.mainMenu}>
-            <div className={styles.fileGroup}>
-                <div className={classNames(styles.menuBarItem)}>
-                    <img
-                        alt="Scratch"
-                        className={styles.scratchLogo}
-                        draggable={false}
-                        src={scratchLogo}
-                    />
-                </div>
-                {/*隐藏的*/}
-                <div
-                    className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
-                        [styles.active]: props.languageMenuOpen
-                    })}
-                    onMouseUp={props.onClickLanguage}
-                >
-                    <MenuBarItemTooltip
-                        enable={window.location.search.indexOf('enable=language') !== -1}
-                        id="menubar-selector"
-                        place="right"
+    return (
+        <Box className={styles.menuBar}>
+            <div className={styles.mainMenu}>
+                <div className={styles.fileGroup}>
+                    <div className={classNames(styles.menuBarItem)}>
+                        <img
+                            alt="Scratch"
+                            className={styles.scratchLogo}
+                            draggable={false}
+                            src={scratchLogo}
+                        />
+                    </div>
+                    {/*隐藏的*/}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
+                            [styles.active]: props.languageMenuOpen
+                        })}
+                        onMouseUp={props.onClickLanguage}
                     >
-                        <div
-                            aria-label={props.intl.formatMessage(ariaMessages.language)}
-                            className={classNames(styles.languageMenu)}
+                        <MenuBarItemTooltip
+                            enable={window.location.search.indexOf('enable=language') !== -1}
+                            id="menubar-selector"
+                            place="right"
                         >
-                            <img
-                                className={styles.languageIcon}
-                                src={languageIcon}
-                            />
-                            <img
-                                className={styles.dropdownCaret}
-                                src={dropdownCaret}
-                            />
-                        </div>
-                        <MenuBarMenu
-                            open={props.languageMenuOpen}
-                            onRequestClose={props.onRequestCloseLanguage}
-                        >
-                            <LanguageSelector />
-                        </MenuBarMenu>
+                            <div
+                                aria-label={props.intl.formatMessage(ariaMessages.language)}
+                                className={classNames(styles.languageMenu)}
+                            >
+                                <img
+                                    className={styles.languageIcon}
+                                    src={languageIcon}
+                                />
+                                <img
+                                    className={styles.dropdownCaret}
+                                    src={dropdownCaret}
+                                />
+                            </div>
+                            <MenuBarMenu
+                                open={props.languageMenuOpen}
+                                onRequestClose={props.onRequestCloseLanguage}
+                            >
+                                <LanguageSelector/>
+                            </MenuBarMenu>
 
                         </MenuBarItemTooltip>
                     </div>
@@ -323,7 +323,7 @@ const MenuBar = props => {
                                     id="gui.menuBar.undo"
                                 />
                             </MenuItem>
-                            <MenuItem   onClick={props.reloadPlay}>{/*重做*/}
+                            <MenuItem onClick={props.reloadPlay}>{/*重做*/}
                                 <FormattedMessage
                                     defaultMessage="Redo"
                                     description="Menu bar item for redoing"
@@ -391,47 +391,47 @@ const MenuBar = props => {
                     </div>
                 </div>
 
-            {/*fengedian  */}
-            <div
-                className={classNames(styles.menuBarItem, styles.hoverable, {
-                    [styles.active]: props.connectMenuOpen                      //wlq
-                })}
-                onMouseUp={props.onClickConnect}
-            >
-                <div className={classNames(styles.editMenu)}>
-                    Connect
+                {/*fengedian  */}
+                <div
+                    className={classNames(styles.menuBarItem, styles.hoverable, {
+                        [styles.active]: props.connectMenuOpen                      //wlq
+                    })}
+                    onMouseUp={props.onClickConnect}
+                >
+                    <div className={classNames(styles.editMenu)}>
+                        Connect
+                    </div>
+                    <MenuBarMenu
+                        open={props.connectMenuOpen}
+                        onRequestClose={props.onRequestCloseConnect}
+                    >{portMenuItem}
+                        {/*<MenuBarItemTooltip id="usb" enable={true}>*/}
+                        {/*<MenuItem*/}
+                        {/*// onClick={Arduino}*/}
+
+                        {/*>*/}
+                        {/*端口*/}
+                        {/*</MenuItem>*/}
+                        {/*</MenuBarItemTooltip>*/}
+                        {/*<MenuBarItemTooltip id="wifi" enable={true}>*/}
+                        {/*<MenuItem*/}
+                        {/*// onClick={Arduino}*/}
+
+                        {/*>*/}
+                        {/*wifi*/}
+                        {/*</MenuItem>*/}
+                        {/*</MenuBarItemTooltip>*/}
+
+                    </MenuBarMenu>
                 </div>
-                <MenuBarMenu
-                    open={props.connectMenuOpen}
-                    onRequestClose={props.onRequestCloseConnect}
-                >{portMenuItem}
-                    {/*<MenuBarItemTooltip id="usb" enable={true}>*/}
-                        {/*<MenuItem*/}
-                            {/*// onClick={Arduino}*/}
-
-                        {/*>*/}
-                            {/*端口*/}
-                        {/*</MenuItem>*/}
-                    {/*</MenuBarItemTooltip>*/}
-                    {/*<MenuBarItemTooltip id="wifi" enable={true}>*/}
-                        {/*<MenuItem*/}
-                            {/*// onClick={Arduino}*/}
-
-                        {/*>*/}
-                            {/*wifi*/}
-                        {/*</MenuItem>*/}
-                    {/*</MenuBarItemTooltip>*/}
-
-                </MenuBarMenu>
             </div>
-        </div>
 
             {/*fengedian*/}
             <Divider className={classNames(styles.divider)}/>
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field" enable={true}>
                     <input
-                        onChange={(projectName)=>props.onChange(projectName)}
+                        onChange={(projectName) => props.onChange(projectName)}
                         /* disabled 让文本框可输入*/
                         className={classNames(styles.titleField)}
                         placeholder="Untitled-1"
@@ -512,7 +512,7 @@ const MenuBar = props => {
                     >
                         使用指南
                     </Button>
-                   {/* <Button className={classNames(styles.btn)}>
+                    {/* <Button className={classNames(styles.btn)}>
                         使用指南
                     </Button>
                      <img
@@ -547,7 +547,6 @@ const MenuBar = props => {
                             styles.hide
                         )}
                     >
-
                         <img
                             className={styles.profileIcon}
                             src={profileIcon}
@@ -555,66 +554,67 @@ const MenuBar = props => {
                         <span>
                         {'scratch-cat' /* @todo username */}
                     </span>
-                    <img
-                        className={styles.dropdownCaretIcon}
-                        src={dropdownCaret}
-                    />
-                </div>
-            </MenuBarItemTooltip>
-        </div>
-    </Box>
-);
-};
-MenuBar.propTypes = {
-    hardwareMenuOpen: PropTypes.bool,
-    connectMenuOpen: PropTypes.bool,
-    editMenuOpen: PropTypes.bool,
-    enableCommunity: PropTypes.bool,
-    fileMenuOpen: PropTypes.bool,
-    intl: intlShape,
-    languageMenuOpen: PropTypes.bool,
-    onClickEdit: PropTypes.func,
-    onClickHardware:PropTypes.func,   //wlq
-    onClickConnect:PropTypes.func,  // wlq
-
-    onClickFile: PropTypes.func,
-    onClickLanguage: PropTypes.func,
-    onOpenTipLibrary: PropTypes.func,
-    onRequestCloseEdit: PropTypes.func,
-    onRequestCloseFile: PropTypes.func,
-    onRequestCloseLanguage: PropTypes.func,
-    onRequestCloseHardware: PropTypes.func,
-    onRequestCloseConnect: PropTypes.func,
-    onSeeCommunity: PropTypes.func
+                        <img
+                            className={styles.dropdownCaretIcon}
+                            src={dropdownCaret}
+                        />
+                    </div>
+                </MenuBarItemTooltip>
+            </div>
+        </Box>
+    );
 };
 
-const mapStateToProps = state => ({
-    fileMenuOpen: fileMenuOpen(state),
-    hardwareMenuOpen: hardwareMenuOpen(state),
-    connectMenuOpen: connectMenuOpen(state),
-    //预加 还没reduxer
-    // connecTion:connectMenuOpen(state), //预加
-    editMenuOpen: editMenuOpen(state),
-    languageMenuOpen: languageMenuOpen(state)
-});
+    MenuBar.propTypes = {
+        hardwareMenuOpen: PropTypes.bool,
+        connectMenuOpen: PropTypes.bool,
+        editMenuOpen: PropTypes.bool,
+        enableCommunity: PropTypes.bool,
+        fileMenuOpen: PropTypes.bool,
+        intl: intlShape,
+        languageMenuOpen: PropTypes.bool,
+        onClickEdit: PropTypes.func,
+        onClickHardware: PropTypes.func,   //wlq
+        onClickConnect: PropTypes.func,  // wlq
 
-const mapDispatchToProps = dispatch => ({
-    onOpenTipLibrary: () => dispatch(openTipsLibrary()),
-    onClickFile: () => dispatch(openFileMenu()),
-    onRequestCloseFile: () => dispatch(closeFileMenu()),
-    onClickEdit: () => dispatch(openEditMenu()),
-    onRequestCloseEdit: () => dispatch(closeEditMenu()),
+        onClickFile: PropTypes.func,
+        onClickLanguage: PropTypes.func,
+        onOpenTipLibrary: PropTypes.func,
+        onRequestCloseEdit: PropTypes.func,
+        onRequestCloseFile: PropTypes.func,
+        onRequestCloseLanguage: PropTypes.func,
+        onRequestCloseHardware: PropTypes.func,
+        onRequestCloseConnect: PropTypes.func,
+        onSeeCommunity: PropTypes.func
+    };
 
-    onClickHardware: () => dispatch(openHardwareMenu()),               // wlq预加
-    onRequestCloseHardware: () => dispatch(closeHardwareMenu()),       //wlq 预加
+    const mapStateToProps = state => ({
+        fileMenuOpen: fileMenuOpen(state),
+        hardwareMenuOpen: hardwareMenuOpen(state),
+        connectMenuOpen: connectMenuOpen(state),
+        //预加 还没reduxer
+        // connecTion:connectMenuOpen(state), //预加
+        editMenuOpen: editMenuOpen(state),
+        languageMenuOpen: languageMenuOpen(state)
+    });
 
-    onClickConnect: () => dispatch(openConnectMenu()),
-    onRequestCloseConnect: () => dispatch(closeConnectMenu()),
+    const mapDispatchToProps = dispatch => ({
+        onOpenTipLibrary: () => dispatch(openTipsLibrary()),
+        onClickFile: () => dispatch(openFileMenu()),
+        onRequestCloseFile: () => dispatch(closeFileMenu()),
+        onClickEdit: () => dispatch(openEditMenu()),
+        onRequestCloseEdit: () => dispatch(closeEditMenu()),
 
-    onClickLanguage: () => dispatch(openLanguageMenu()),
-    onRequestCloseLanguage: () => dispatch(closeLanguageMenu()),
-    onSeeCommunity: () => dispatch(setPlayer(true))
-});
+        onClickHardware: () => dispatch(openHardwareMenu()),               // wlq预加
+        onRequestCloseHardware: () => dispatch(closeHardwareMenu()),       //wlq 预加
+
+        onClickConnect: () => dispatch(openConnectMenu()),
+        onRequestCloseConnect: () => dispatch(closeConnectMenu()),
+
+        onClickLanguage: () => dispatch(openLanguageMenu()),
+        onRequestCloseLanguage: () => dispatch(closeLanguageMenu()),
+        onSeeCommunity: () => dispatch(setPlayer(true))
+    });
 
 export default injectIntl(connect(
     mapStateToProps,
