@@ -7,7 +7,7 @@ import {connect} from 'react-redux';
 import MediaQuery from 'react-responsive';
 import {Tab, Tabs, TabList, TabPanel} from 'react-tabs';
 import tabStyles from 'react-tabs/style/react-tabs.css';
-import VM from 'scratch-vm';
+import VM from '../../../scratch-vm';
 import Renderer from 'scratch-render';
 
 import Blocks from '../../containers/blocks.jsx';
@@ -150,6 +150,7 @@ const GUIComponent = props => {
                                   openIno={props.openIno}//open arduion
                                   restoreFirmware={props.restoreFirmware}//3
                                   updateEditorInstance={props.updateEditorInstance}
+                                  windowHeight={props.windowHeight}
                                   consoleSend={props.consoleSend}/>
                 ): null}
                 {togglePopup ? (

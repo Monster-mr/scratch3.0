@@ -38,7 +38,7 @@ class GUI extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
-            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware",]);
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","resizeWindow",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
         this.state = {
@@ -54,9 +54,13 @@ class GUI extends React.Component {
             consoleMsg: this.consoleMsgBuff,
             getInputValue:'Scratch 3.0 GUI',
             editorCode: '#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n',
+            windowHeight: window.innerHeight,
         };
     }
-
+    resizeWindow(){
+        console.log("window "+window.innerHeight);
+        this.setState({windowHeight:window.innerHeight});
+    }
     consoleSend(txt){   //zbl 获取值
         this.sendCommonData(txt);
     }
@@ -109,6 +113,7 @@ class GUI extends React.Component {
         this.props.vm.runtime.ioDevices.serial.regQueryData(this.deviceQuery);
         this.props.kb.arduino.sendCmdEvent.addListener(this.sendCommonData);
         this.props.vm.initialized = true;
+        window.onresize = this.resizeWindow;
     }
     componentWillReceiveProps (nextProps) {
         if (this.props.projectData !== nextProps.projectData) {
@@ -236,6 +241,7 @@ class GUI extends React.Component {
                 openIno={this.openIno}   //arduion open
                 restoreFirmware={this.restoreFirmware}
                 editorCode={this.state.editorCode} //zbl 7
+                windowHeight={this.state.windowHeight}
                 //kb={this.props.kb}
                 kb={kb}
                 consoleMsg={this.state.consoleMsg}
