@@ -288,8 +288,7 @@ const GUIComponent = props => {
                     </Box>
                 </Box>
                 <DragLayer />
-
-                {children[0]}
+                {toggleArduinoPanel ?(children[0]):null}
 
             </Box>
         );
