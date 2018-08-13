@@ -84,10 +84,10 @@ class ArduinoPanelComponent extends React.Component {
             style={{
                 position: 'absolute',
                 left:2,
-                width:490,
+                width:495,
                 //height:panelHeight*0.5-100,
                 height:'40%',
-                top:'52%',
+                top:'53%',
                 //top:panelHeight*0.5+50,
                 overflowY: 'scroll',
                 backgroundColor: '#000000',
