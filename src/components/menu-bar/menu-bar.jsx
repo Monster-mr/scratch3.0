@@ -398,7 +398,10 @@ const MenuBar = props => {
                     })}
                     onMouseUp={props.onClickConnect}
                 >
-                    <div className={classNames(styles.editMenu)}>
+                    <div className={classNames(styles.editMenu)}
+                         onClick={props.refreshPort}
+                         onSelect={props.selectPort}
+                    >
                         Connect
                     </div>
                     <MenuBarMenu

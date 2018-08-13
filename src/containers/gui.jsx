@@ -52,9 +52,13 @@ class GUI extends React.Component {
             consoleMsg: this.consoleMsgBuff,
             getInputValue:'Scratch 3.0 GUI',
             editorCode: '#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n',
+            windowHeight: window.innerHeight,
         };
     }
-
+    resizeWindow(){
+        console.log("window "+window.innerHeight);
+        this.setState({windowHeight:window.innerHeight});
+    }
     consoleSend(txt){   //zbl 获取值
         this.sendCommonData(txt);
     }
@@ -86,7 +90,6 @@ class GUI extends React.Component {
         return this.props.kb.arduino.queryData(data);
     }
     componentDidMount () {
-        console.log(this.childCp);
         this.refreshPort();   //此处仍存在若干bug
         if (this.props.vm.initialized) return;
         this.audioEngine = new AudioEngine();
@@ -108,6 +111,7 @@ class GUI extends React.Component {
         this.props.vm.runtime.ioDevices.serial.regQueryData(this.deviceQuery);
         this.props.kb.arduino.sendCmdEvent.addListener(this.sendCommonData);
         this.props.vm.initialized = true;
+        window.onresize = this.resizeWindow;
     }
     componentWillReceiveProps (nextProps) {
         if (this.props.projectData !== nextProps.projectData) {
@@ -151,7 +155,13 @@ class GUI extends React.Component {
         if(port.type=='disconnect'){
             this.props.kb.disonnectPort();
         }else{
-            this.props.kb.connectPort(port,this.portConnected,this.portOnReadline,this.portClosed);
+            // check if plugin has on Recv method
+            if('onRecv' in this.props.kb.plugin){
+                var onRecv = this.props.kb.plugin.onRecv;
+                this.props.kb.connectPort(port,this.portConnected,this.props.portReadLine,this.portClosed,onRecv);
+            }else{
+                this.props.kb.connectPort(port,this.portConnected,this.props.portReadLine,this.portClosed);
+            }
         }
     }
 
@@ -211,7 +221,6 @@ class GUI extends React.Component {
         });*/
         return (
             <GUIComponent
-                ref="test2"
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
                 clearConsole={this.clearConsole}//zbl
@@ -235,6 +244,7 @@ class GUI extends React.Component {
                 openIno={this.openIno}   //arduion open
                 restoreFirmware={this.restoreFirmware}
                 editorCode={this.state.editorCode} //zbl 7
+                windowHeight={this.state.windowHeight}
                 //kb={this.props.kb}
                 kb={kb}
                 consoleMsg={this.state.consoleMsg}

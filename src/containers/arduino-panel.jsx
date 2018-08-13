@@ -39,6 +39,7 @@ class ArduinoPanel extends React.Component {
                 codeRef={this.props.updateEditorInstance}
                 consoleSend={this.props.consoleSend}
                 restoreFirmware={this.props.restoreFirmware}//2
+                windowHeight={this.props.windowHeight}
                 {...props}
             />
         );

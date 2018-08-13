@@ -4,10 +4,10 @@ import brace from 'brace';
 import AceEditor from 'react-ace';
 import 'brace/mode/java';
 import 'brace/theme/eclipse';
-/*import {Button,FormControl,MenuItem,ButtonGroup,DropdownButton } from 'react-bootstrap';*/
+//import {Button,FormControl,MenuItem,ButtonGroup,DropdownButton } from 'react-bootstrap';
 const bindAll = require('lodash.bindall'); //zbl
 const ReactDOM = require('react-dom');//zbl
-/*import {Icon} from 'react-fa';//zbl*/
+//import {Icon} from 'react-fa';//zbl
 const arduinoIcon = require('./arduino.png');
 
 class ArduinoPanelComponent extends React.Component {
@@ -50,14 +50,15 @@ class ArduinoPanelComponent extends React.Component {
             var t = this.props.consoleMsg[i];
             msgs.push(<p style={{color:t.color}} key={i}>{t.msg}</p>);
         };*/
+        var panelHeight=this.props.windowHeight-90;
         return (<div
                 style={{
                     position: 'absolute',
                     display: visible,
-                    zIndex: 9999,
-                    right: 0,
+                    zIndex: 99999,
+                    right: 1,
                     width: 500,
-                    height: 560,
+                    height: panelHeight,
                     top: 90,
                     bottom: 8,
                     backgroundColor: '#0097a7',
@@ -65,12 +66,12 @@ class ArduinoPanelComponent extends React.Component {
             >
             <div className="group" id="code-buttons" style={{top:4,left:4,width:480,position:'absolute'}}>
                 <Button style={{marginLeft:5,height:34}} onClick={this.props.translateCode}><input type="checkbox"/>Translate</Button>
-                <Button style={{marginLeft:5}}  onClick={this.props.restoreFirmware}>Restore</Button>
-                <Button style={{marginLeft:5}} onClick={this.props.uploadProj}>Upload</Button>
-                <Button style={{float:'right'}} onClick={this.props.openIno}>{<img style={{height: 20}} src={arduinoIcon}/>}Open with arduino</Button>
+                <Button style={{marginLeft:5,height:34}}  onClick={this.props.restoreFirmware}>Restore</Button>
+                <Button style={{marginLeft:5,height:34}} onClick={this.props.uploadProj}>Upload</Button>
+                <Button style={{float:'right',height:34}} onClick={this.props.openIno}>{<img style={{height: 20}} src={arduinoIcon}/>}Open with arduino</Button>
             </div>
             <AceEditor
-                style={{top:45,left:2,height:250,width:495}}
+                style={{top:45,left:2,height:panelHeight*0.5,width:495}}
                 mode="c_cpp"
                 theme="eclipse"
                 name="arduino-code"
@@ -82,9 +83,9 @@ class ArduinoPanelComponent extends React.Component {
             style={{
                 position: 'absolute',
                 left:2,
-                width:470,
-                height:200,
-                top:300,
+                width:490,
+                height:panelHeight*0.5-100,
+                top:panelHeight*0.5+50,
                 overflowY: 'scroll',
                 backgroundColor: '#000000',
                 color: '#008000',
@@ -97,24 +98,26 @@ class ArduinoPanelComponent extends React.Component {
                   onSubmit={this.consoleEnter} //zbl
                  style={{
                      position:'absolute',
-                     top:500,
+                     bottom:10,
                      width:470,
                      marginLeft:4,
-                     marginTop:8
+                     marginTop:4
                  }}
             >
                 <FormControl
                     type="text"
                     style={{
                         width: '70%',
+                        height:'28px',
                         backgroundColor: '#FFFFFF',
                         border: '0px',
-                        color: '#000000'
+                        color: '#000000',
+                        paddingLeft:'8px'
                     }}
                     ref="consoleInput"  //zbl
                 />
-                <Button style={{marginLeft:3}} onClick={this.consoleSend}>Send</Button>
-                <Button style={{marginLeft:2}} onClick={this.props.clearConsole}>C</Button>
+                <Button style={{marginLeft:3, width:'10%',height:'28px'}} onClick={this.consoleSend}>Send</Button>
+                <Button style={{marginLeft:2, width:'10%',height:'28px'}} onClick={this.props.clearConsole}>C</Button>
             </form>
 
             </div>
