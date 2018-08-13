@@ -157,7 +157,13 @@ class GUI extends React.Component {
         if(port.type=='disconnect'){
             this.props.kb.disonnectPort();
         }else{
-            this.props.kb.connectPort(port,this.portConnected,this.portOnReadline,this.portClosed);
+            // check if plugin has on Recv method
+            if('onRecv' in this.props.kb.plugin){
+                var onRecv = this.props.kb.plugin.onRecv;
+                this.props.kb.connectPort(port,this.portConnected,this.props.portReadLine,this.portClosed,onRecv);
+            }else{
+                this.props.kb.connectPort(port,this.portConnected,this.props.portReadLine,this.portClosed);
+            }
         }
     }
 
