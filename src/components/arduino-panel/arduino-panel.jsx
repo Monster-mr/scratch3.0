@@ -50,7 +50,7 @@ class ArduinoPanelComponent extends React.Component {
             var t = this.props.consoleMsg[i];
             msgs.push(<p style={{color:t.color}} key={i}>{t.msg}</p>);
         };*/
-        var panelHeight=this.props.windowHeight-90;
+        var panelHeight=this.props.windowHeight-'3.1rem';
         return (<div
                 style={{
                     position: 'absolute',
@@ -59,9 +59,9 @@ class ArduinoPanelComponent extends React.Component {
                     right: 1,
                     width: 500,
                     height: panelHeight,
-                    top: 90,
-                    bottom: 8,
-                    backgroundColor: '#0097a7',
+                    top: '3.1rem',
+                    bottom: 2,
+                    backgroundColor: '#4C97FF',
                 }}
             >
             <div className="group" id="code-buttons" style={{top:4,left:4,width:480,position:'absolute'}}>
@@ -71,7 +71,8 @@ class ArduinoPanelComponent extends React.Component {
                 <Button style={{float:'right',height:34}} onClick={this.props.openIno}>{<img style={{height: 20}} src={arduinoIcon}/>}Open with arduino</Button>
             </div>
             <AceEditor
-                style={{top:45,left:2,height:panelHeight*0.5,width:495}}
+                //panelHeight*0.5
+                style={{top:45,left:2,height:'45%',width:495}}
                 mode="c_cpp"
                 theme="eclipse"
                 name="arduino-code"
@@ -84,8 +85,10 @@ class ArduinoPanelComponent extends React.Component {
                 position: 'absolute',
                 left:2,
                 width:490,
-                height:panelHeight*0.5-100,
-                top:panelHeight*0.5+50,
+                //height:panelHeight*0.5-100,
+                height:'40%',
+                top:'52%',
+                //top:panelHeight*0.5+50,
                 overflowY: 'scroll',
                 backgroundColor: '#000000',
                 color: '#008000',
@@ -107,7 +110,7 @@ class ArduinoPanelComponent extends React.Component {
                 <FormControl
                     type="text"
                     style={{
-                        width: '70%',
+                        width: '76%',
                         height:'28px',
                         backgroundColor: '#FFFFFF',
                         border: '0px',
@@ -116,8 +119,8 @@ class ArduinoPanelComponent extends React.Component {
                     }}
                     ref="consoleInput"  //zbl
                 />
-                <Button style={{marginLeft:3, width:'10%',height:'28px'}} onClick={this.consoleSend}>Send</Button>
-                <Button style={{marginLeft:2, width:'10%',height:'28px'}} onClick={this.props.clearConsole}>C</Button>
+                <Button style={{marginLeft:4, width:'10%',height:'28px'}} onClick={this.consoleSend}>Send</Button>
+                <Button style={{marginLeft:3, width:'10%',height:'28px'}} onClick={this.props.clearConsole}>C</Button>
             </form>
 
             </div>
