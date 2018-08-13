@@ -7,7 +7,7 @@ import {connect} from 'react-redux';
 import MediaQuery from 'react-responsive';
 import {Tab, Tabs, TabList, TabPanel} from 'react-tabs';
 import tabStyles from 'react-tabs/style/react-tabs.css';
-import VM from 'scratch-vm';
+import VM from '../../../scratch-vm'
 import Renderer from 'scratch-render';
 
 import Blocks from '../../containers/blocks.jsx';
@@ -53,7 +53,7 @@ const messages = defineMessages({
 // Cache this value to only retrieve it once the first time.
 // Assume that it doesn't change for a session.
 let isRendererSupported = null;
-let myThis={Blocks:null};
+
 const GUIComponent = props => {
     const {
         activeTabIndex,
@@ -100,9 +100,11 @@ const GUIComponent = props => {
         reloadPlay,
         ...componentProps
     } = omit(props, 'dispatch');
-    if (children) {
-        return <Box {...componentProps}>{children}</Box>;
-    }
+
+
+    // if (children) {
+    //     return <Box {...componentProps}>{children}</Box>;
+    // }
 
     const tabClassNames = {
         tabs: styles.tabs,
@@ -139,19 +141,7 @@ const GUIComponent = props => {
                 {importInfoVisible ? (
                     <ImportModal />
                 ) : null}
-                {toggleArduinoPanel ? (
-                    <ArduinoPanel visible={showArduinoPanel}
-                                  codes = {myThis.Blocks}
-                                  code={code}
-                                  consoleMsg={props.consoleMsg}
-                                  clearConsole={props.clearConsole} //zbl
-                                  editorCode={editorCode}
-                                  uploadProj={props.uploadProj}//arduion upload
-                                  openIno={props.openIno}//open arduion
-                                  restoreFirmware={props.restoreFirmware}//3
-                                  updateEditorInstance={props.updateEditorInstance}
-                                  consoleSend={props.consoleSend}/>
-                ): null}
+
                 {togglePopup ? (
                     <Popup showPopup={props.showPopups}
                     togglePopup={props.togglePopup}
@@ -254,19 +244,7 @@ const GUIComponent = props => {
                             </TabList>
                                 <TabPanel className={tabClassNames.tabPanel}>
                                     <Box className={styles.blocksWrapper}>
-                                        <Blocks
-                                            grow={1}
-                                            isVisible={blocksTabVisible}
-                                            options={{
-                                                media: `${basePath}static/blocks-media/`
-                                            }}
-                                            stageSize={stageSize}
-                                            vm={vm}
-                                            kb={kb}
-                                            ref={(Blocks)=>{myThis.Blocks=Blocks}}
-                                            showStage={props.showStage}
-                                            //blocksProps={shapeFromPropTypes(Blocks.propTypes, {omit: ['vm']})}
-                                        />
+                                        {children[1]}
                                     </Box>
                                     <Box className={styles.extensionButtonContainer}>
                                         <button
@@ -310,6 +288,9 @@ const GUIComponent = props => {
                     </Box>
                 </Box>
                 <DragLayer />
+
+                {children[0]}
+
             </Box>
         );
     }}</MediaQuery>);

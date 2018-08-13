@@ -152,3 +152,11 @@ Blockly.Arduino.tab = function(){
     return Blockly.Arduino.INDENT.repeat(Blockly.Arduino.tabPos);
 };
 
+// if (!goog.global['Blockly']) {
+//   goog.global['Blockly'] = {};
+// }
+// if (!goog.global['Blockly']['Arduino']) {
+//   goog.global['Blockly']['Arduino'] = {};
+// }
+// goog.global['Blockly']['Arduino'] = Blockly.Arduino;
+

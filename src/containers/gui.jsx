@@ -7,14 +7,12 @@ import ReactModal from 'react-modal';
 import bindAll from 'lodash.bindall';
 //import defaultsDeep from 'lodash.defaultsdeep';
 //const shapeFromPropTypes = require('../lib/shape-from-prop-types');
-import Blocks from '../containers/blocks.jsx';
-//import Blocks from '../../containers/blocks.jsx';
-//import Blocks from  './blocks.jsx';
-
 //import shapeFromPropTypes from '../lib/shape-from-prop-types.js';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {openExtensionLibrary} from '../reducers/modals';
 import  KittenBlock  from '../../kittenblock-pc';
+import ArduinoPanel from './arduino-panel.jsx';
+import Blocks from './blocks.jsx';
 import {
     activateTab,
     BLOCKS_TAB_INDEX,
@@ -37,7 +35,7 @@ import {STAGE_SIZE_MODES} from "../lib/layout-constants";
 class GUI extends React.Component {
     constructor (props) {
         super(props);
-        bindAll(this, ['toggleArduinoPanel','toggelStage','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
+        bindAll(this, ['toggleArduinoPanel','toggelStage','translateCode','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
             "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
@@ -88,6 +86,7 @@ class GUI extends React.Component {
         return this.props.kb.arduino.queryData(data);
     }
     componentDidMount () {
+        console.log(this.childCp);
         this.refreshPort();   //此处仍存在若干bug
         if (this.props.vm.initialized) return;
         this.audioEngine = new AudioEngine();
@@ -174,10 +173,10 @@ class GUI extends React.Component {
     updateEditorInstance(editor){
         this.editor = editor.editor;
     }
-/*    translateCode(){      //zbl arduion translate
-        var code = this.refs.Blocks.sb2cpp();
-        this.setState({editorCode:code});
-    }*/
+    translateCode() {
+         var code = this.childCp.sb2cpp();
+         this.setState({editorCode: code});
+     }
     uploadProject() {  //arduion upload
         var code = this.editor.getValue();
         this.props.kb.uploadProject(code,this.appendLog);
@@ -212,6 +211,7 @@ class GUI extends React.Component {
         });*/
         return (
             <GUIComponent
+                ref="test2"
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
                 toggleArduinoPanel={this.toggleArduinoPanel}
                 clearConsole={this.clearConsole}//zbl
@@ -228,7 +228,6 @@ class GUI extends React.Component {
                 connectedPort={this.state.connectedPort}
                 refreshPort={this.refreshPort}
                 selectPort={this.selectPort}
-          /*      translateCode={this.translateCode} //arduion translate*/
                 code={this.state.editorCode}
                 showStage={this.state.showStage}
                 updateEditorInstance={this.updateEditorInstance}
@@ -241,7 +240,31 @@ class GUI extends React.Component {
                 consoleMsg={this.state.consoleMsg}
                 {...componentProps}
             >
-                {children}
+                <ArduinoPanel visible={this.state.showArduinoPanel}
+                                  code={this.state.editorCode}
+                                  vm={vm}
+                                  translateCode={this.translateCode}
+                                  consoleMsg={this.state.consoleMsg}
+                                  clearConsole={this.clearConsole}
+                                  editorCode={this.state.editorCode}
+                                  uploadProj={this.uploadProject}
+                                  openIno={this.openIno}
+                                  restoreFirmware={this.restoreFirmware}
+                                  updateEditorInstance={this.updateEditorInstance}
+                                  consoleSend={this.consoleSend}/>
+                <Blocks
+                    grow={1}
+                    getInstance={(childCp) => { this.childCp = childCp; }}
+                    isVisible={true}
+                    options={{
+                        media: `${this.props.basePath}static/blocks-media/`
+                    }}
+                    // stageSize={stageSize}
+
+                    showStage={this.state.showStage}
+                    vm={vm}
+                    kb={kb}
+                />
             </GUIComponent>
         );
     }
@@ -280,7 +303,7 @@ GUI.defaultProps = {
         host: null,
         visible: false
     },
-    //basePath: './',        zbl 8.3
+    basePath: './',
     headerBarProps: {},
     blocksProps: {},
     stageSizeMode: STAGE_SIZE_MODES.large,
