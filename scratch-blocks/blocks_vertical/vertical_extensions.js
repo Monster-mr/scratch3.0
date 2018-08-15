@@ -89,7 +89,10 @@ Blockly.ScratchBlocks.VerticalExtensions.SHAPE_HAT = function() {
   this.setInputsInline(true);
   this.setNextStatement(true, null);
 };
-
+Blockly.ScratchBlocks.VerticalExtensions.ARDUINO_HAT = function(){
+  this.setInputsInline(true);
+  // this.setNextStatement(true, null);
+};
 /**
  * Extension to make a block be shaped as an end block, regardless of its
  * inputs.  That means the block should have a previous connection and have
@@ -240,6 +243,8 @@ Blockly.ScratchBlocks.VerticalExtensions.registerAll = function() {
       Blockly.ScratchBlocks.VerticalExtensions.SHAPE_STATEMENT);
   Blockly.Extensions.register('shape_hat',
       Blockly.ScratchBlocks.VerticalExtensions.SHAPE_HAT);
+  Blockly.Extensions.register('arduino_hat',
+    Blockly.ScratchBlocks.VerticalExtensions.ARDUINO_HAT);
   Blockly.Extensions.register('shape_end',
       Blockly.ScratchBlocks.VerticalExtensions.SHAPE_END);
 

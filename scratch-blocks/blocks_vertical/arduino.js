@@ -17,16 +17,30 @@ Blockly.Blocks['event_arduinobegin'] = {
      * @this Blockly.Block
      */
     init: function() {
-        this.jsonInit({
-            "id": "event_arduinobegin",
-            "message0": Blockly.Msg.ARDUINO_BEGIN,
-            "inputsInline": true,
-            "nextStatement": null,
-            "category": Blockly.Categories.event,
-            "colour": Blockly.Colours.arduino.primary,
-            "colourSecondary": Blockly.Colours.arduino.secondary,
-            "colourTertiary": Blockly.Colours.arduino.tertiary
-        });
+      this.jsonInit({
+        "id": "event_whenflagclicked",
+        "message0": "Arduino Setup",
+        "message1":"%1",
+        "message2":"%1",
+        "args1": [
+          {
+            "type": "input_statement",
+            "name": "SUBSTACK"
+          }
+        ],
+        "args2": [
+          {
+            "type": "input_statement",
+            "name": "SUBSTACK2"
+          }
+        ],
+        // "category": Blockly.Categories.event,
+        "extensions": ["arduino_hat"],
+        "colour": Blockly.Colours.arduino.secondary,
+        "colourSecondary": Blockly.Colours.arduino.secondary,
+        "colourTertiary": Blockly.Colours.arduino.tertiary,
+        "outputShape": Blockly.OUTPUT_SHAPE_SQUARE
+      });
     }
 };
 
@@ -423,31 +437,31 @@ Blockly.Blocks['arduino_servo'] = {
     }
 };
 
-
-Blockly.Blocks['arduino_pulsein'] = {
-    /**
-     * ultrasonicsensor(pintrig, pinecho)
-     * @this Blockly.Block
-     */
-    init: function() {
-        this.jsonInit({
-            "id": "arduino_pulsein",
-            "message0": Blockly.Msg.ARDUINO_PULSEIN,
-            "args0": [
-                {
-                    "type": "input_value",
-                    "name": "PINNUM"
-                }
-            ],
-            "inputsInline": true,
-            "output": "Number",
-            "colour": Blockly.Colours.arduino.primary,
-            "colourSecondary": Blockly.Colours.arduino.secondary,
-            "colourTertiary": Blockly.Colours.arduino.tertiary,
-            "outputShape": Blockly.OUTPUT_SHAPE_ROUND
-        });
-    }
-};
+// 超声波测距 冰接说先撤掉
+// Blockly.Blocks['arduino_pulsein'] = {
+//     /**
+//      * ultrasonicsensor(pintrig, pinecho)
+//      * @this Blockly.Block
+//      */
+//     init: function() {
+//         this.jsonInit({
+//             "id": "arduino_pulsein",
+//             "message0": Blockly.Msg.ARDUINO_PULSEIN,
+//             "args0": [
+//                 {
+//                     "type": "input_value",
+//                     "name": "PINNUM"
+//                 }
+//             ],
+//             "inputsInline": true,
+//             "output": "Number",
+//             "colour": Blockly.Colours.arduino.primary,
+//             "colourSecondary": Blockly.Colours.arduino.secondary,
+//             "colourTertiary": Blockly.Colours.arduino.tertiary,
+//             "outputShape": Blockly.OUTPUT_SHAPE_ROUND
+//         });
+//     }
+// };
 
 
 Blockly.Blocks['arduino_println'] = {

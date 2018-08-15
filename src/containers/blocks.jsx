@@ -352,7 +352,7 @@ class Blocks extends React.Component {
             var code = "";
             code = code +  Blockly.Arduino.workspaceToCode(this.workspace);
         } catch(e) {
-            alert(e.message + "Arduino暂不支持,请移除该模块");
+            alert(e.message + "Arduino暂不支持,请移除该模块"); // 暂且先这样
             console.log(e.message);
         }
         return code;

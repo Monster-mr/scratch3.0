@@ -792,13 +792,13 @@ const arduino = function(){
     </shadow>
     </value>
     </block>
-    <block type="arduino_pulsein">
-    <value name="PINNUM">
-    <shadow type="text">
-    <field name="TEXT">8</field>
-    </shadow>
-    </value>
-    </block>
+    <!--<block type="arduino_pulsein">-->
+    <!--<value name="PINNUM">-->
+    <!--<shadow type="text">-->
+    <!--<field name="TEXT">8</field>-->
+    <!--</shadow>-->
+    <!--</value>-->
+    <!--</block>-->
     <block type="arduino_println">
     <value name="TEXT">
     <shadow type="text">
