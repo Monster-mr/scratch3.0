@@ -8,6 +8,22 @@ goog.provide('Blockly.Arduino.arduino');
 
 goog.require('Blockly.Arduino');
 
+Blockly.Arduino['event_arduinobegin'] = function(block) {
+    Blockly.Arduino.codeStage = Blockly.Arduino.Loop;
+    Blockly.Arduino.tabPos = 0;
+    var order = Blockly.Arduino.ORDER_HIGH;
+    var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
+    branch = Blockly.Arduino.addLoopTrap(branch, block.id);
+    var branch2 = Blockly.Arduino.statementToCode(block, 'SUBSTACK2');
+    branch2 = Blockly.Arduino.addLoopTrap(branch2, block.id);
+    var code=branch + "\n}\n"; // finish up setup
+    code+="\nvoid loop(){\n";
+    code+=branch2;
+    return code;
+  };
+
+
+
 Blockly.Arduino['arduino_pin_mode'] = function(block) {
     var order = Blockly.Arduino.ORDER_NONE;
     var arg0 = Blockly.Arduino.valueToCode(block, 'PINNUM', order);

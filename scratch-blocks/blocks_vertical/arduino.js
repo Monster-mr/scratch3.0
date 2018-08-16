@@ -18,7 +18,7 @@ Blockly.Blocks['event_arduinobegin'] = {
      */
     init: function() {
       this.jsonInit({
-        "id": "event_whenflagclicked",
+        "id": "event_arduinobegin",
         "message0": "Arduino Setup",
         "message1":"%1",
         "message2":"%1",

@@ -98,6 +98,7 @@ Blockly.Generator.prototype.workspaceToCode = function(workspace) {
   this.init(workspace);
   var blocks = workspace.getTopBlocks(true);
   for (var x = 0, block; block = blocks[x]; x++) {
+    if (block.type === 'event_arduinobegin' || block.type === "event_whenflagclicked"){
     var line = this.blockToCode(block);
     if (goog.isArray(line)) {
       // Value blocks return tuples of code and operator order.
@@ -112,7 +113,8 @@ Blockly.Generator.prototype.workspaceToCode = function(workspace) {
       }
       code.push(line);
     }
-  }
+    };
+  };
   code = code.join('\n');  // Blank line between each section.
   code = this.finish(code);
   // Final scrubbing of whitespace.
