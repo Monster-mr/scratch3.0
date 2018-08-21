@@ -13,6 +13,7 @@ import {openExtensionLibrary} from '../reducers/modals';
 import  KittenBlock  from '../../kittenblock-pc';
 import ArduinoPanel from './arduino-panel.jsx';
 import Blocks from './blocks.jsx';
+//import ScratchBlocks from '../../scratch-blocks';
 import {
     activateTab,
     BLOCKS_TAB_INDEX,
@@ -36,7 +37,7 @@ class GUI extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, ['toggleArduinoPanel','toggelStage','translateCode','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
-            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware",]);
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","UndoStack",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
         this.state = {
@@ -180,6 +181,48 @@ class GUI extends React.Component {
     reloadPlay(){
         document.location.reload(true);   //重做
     }
+    UndoStack(){ //撤销
+     this.childCp.UndoStacked(false);
+    }
+   /* UndoStack (redo) {
+            var inputStack = redo ? this.redoStack_ : this.undoStack_;//当前状态
+            var outputStack = redo ? this.undoStack_ : this.redoStack_;//历史状态
+            var inputEvent = inputStack.pop();//执行方法，移除最后一个元素并返回给历史状态(撤销)
+        console.log(redo);
+        console.log(inputStack);
+        console.log(outputStack);
+        console.log(inputEvent);
+            if (!inputEvent) {
+                return;
+            }
+            var events = [inputEvent];
+            // Do another undo/redo if the next one is of the same group.
+            while (inputStack.length && inputEvent.group &&
+            inputEvent.group == inputStack[inputStack.length - 1].group) {
+                events.push(inputStack.pop());//events是移除的那个动作的状态
+            }
+            // Push these popped events on the opposite stack.
+            for (var i = 0, event; event = events[i]; i++) {
+                outputStack.push(event);//outputStack为直接添加移除状态的
+            }
+            events = Blockly.Events.filter(events, redo);
+            Blockly.Events.recordUndo = false;
+            if (Blockly.selected) {
+                Blockly.Events.disable();
+                try {
+                    Blockly.selected.unselect();
+                } finally {
+                    Blockly.Events.enable();
+                }
+            }
+            try {
+                for (var i = 0, event; event = events[i]; i++) {
+                    event.run(redo);
+                }
+            } finally {
+                Blockly.Events.recordUndo = true;
+            }
+    }*/
     updateEditorInstance(editor){
         this.editor = editor.editor;
     }
@@ -233,6 +276,7 @@ class GUI extends React.Component {
                 getInputValue={this.state.getInputValue}
                 onChange={this.onChange}
                 reloadPlay={this.reloadPlay}
+                UndoStack={this.UndoStack}
                 serialDev={this.state.portDev}
                 connectedPort={this.state.connectedPort}
                 refreshPort={this.refreshPort}
@@ -300,6 +344,7 @@ GUI.propTypes = {
     editorCode:PropTypes.string,
     onChange:PropTypes.func,
     reloadPlay:PropTypes.func,
+    UndoStack:PropTypes.func,
 /*    translateCode:PropTypes.func,*/
     uploadProj:PropTypes.func,
     openIno:PropTypes.func,

@@ -181,6 +181,7 @@ const GUIComponent = props => {
                     getInputValue={getInputValue}
                     onChange={onChange}
                     reloadPlay={reloadPlay}
+                    UndoStack={props.UndoStack}
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>

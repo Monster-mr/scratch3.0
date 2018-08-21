@@ -78,8 +78,11 @@ class Blocks extends React.Component {
             'onWorkspaceMetricsChange',
             'setBlocks',
             'sb2cpp',
-            'setLocale'
+            'setLocale',
+            'UndoStacked'
         ]);
+        this.redoStack_ = [];
+        this.undoStack_ = [];
         this.ScratchBlocks.prompt = this.handlePromptStart;
         this.state = {
             workspaceMetrics: {},
@@ -377,6 +380,10 @@ class Blocks extends React.Component {
         const ws = this.workspace;
         ws.refreshToolboxSelection_();
         ws.toolbox_.scrollToCategoryById('myBlocks');
+    }
+    UndoStacked (e) { //撤销
+        this.ScratchBlocks.hideChaff();
+        this.ScratchBlocks.mainWorkspace.undo(e.shiftKey);
     }
     render () {
         /* eslint-disable no-unused-vars */

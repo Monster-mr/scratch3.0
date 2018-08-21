@@ -3,7 +3,6 @@ import {connect} from 'react-redux';
 import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-intl';
 import PropTypes from 'prop-types';
 import React from 'react';
-
 /*import Popup from '../popup/popup';*/
 import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
@@ -46,8 +45,6 @@ import languageIcon from '../language-selector/language-icon.svg';
 import scratchLogo from './scratch-logo.svg';
 
 import helpIcon from './icon--help.svg';
-
-
 const ariaMessages = defineMessages({
     language: {
         id: 'gui.menuBar.LanguageSelector',
@@ -274,7 +271,7 @@ const MenuBar = props => {
                                     <MenuItem
                                         onClick={loadProject}
                                         {...loadProps}
-                                    >文件上传
+                                    >载入文件
                                         {/*  <FormattedMessage
                                         defaultMessage="Load from your computer"
                                         description="Menu bar item for uploading a project from your computer"
@@ -316,7 +313,7 @@ const MenuBar = props => {
                             open={props.editMenuOpen}
                             onRequestClose={props.onRequestCloseEdit}
                         >
-                            <MenuItem>{/*撤销*/}
+                            <MenuItem onClick={props.UndoStack}>{/*撤销props.UndoStack*/}
                                 <FormattedMessage
                                     defaultMessage="Undo"
                                     description="Menu bar item for undoing"
