@@ -28,19 +28,19 @@ Blockly.Arduino['control_repeat'] = function(block) {
     code+=Blockly.Arduino.tab()+"}\n";
     return code;
 };
-
+// if first forever, treat it as loop
 Blockly.Arduino['control_forever'] = function(block) {
-    // if first forever, treat it as loop
-    if(Blockly.Arduino.codeStage!=Blockly.Arduino.Loop) {
-        Blockly.Arduino.codeStage = Blockly.Arduino.Loop;
-        Blockly.Arduino.tabPos = 0;
-        var order = Blockly.Arduino.ORDER_HIGH;
-        var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
-        branch = Blockly.Arduino.addLoopTrap(branch, block.id);
-        code="\n}\n"; // finish up setup
-        code+="\nvoid loop(){\n";
-        code+=branch;
-    }else{
+
+    // if(Blockly.Arduino.codeStage!==Blockly.Arduino.Loop) {
+    //     Blockly.Arduino.codeStage = Blockly.Arduino.Loop;
+    //     Blockly.Arduino.tabPos = 0;
+    //     var order = Blockly.Arduino.ORDER_HIGH;
+    //     var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
+    //     branch = Blockly.Arduino.addLoopTrap(branch, block.id);
+    //     code="\n}\n"; // finish up setup
+    //     code+="\nvoid loop(){\n";
+    //     code+=branch;
+    // }else{
         var code = Blockly.Arduino.tab()+"while(1){\n";
         Blockly.Arduino.tabPos++;
         var branch = Blockly.Arduino.statementToCode(block, 'SUBSTACK');
@@ -48,7 +48,7 @@ Blockly.Arduino['control_forever'] = function(block) {
         code+=branch;
         Blockly.Arduino.tabPos--;
         code+=Blockly.Arduino.tab()+"}\n";
-    }
+    // }
     return code;
 };
 

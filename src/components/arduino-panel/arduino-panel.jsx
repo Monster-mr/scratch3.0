@@ -65,7 +65,7 @@ class ArduinoPanelComponent extends React.Component {
                 }}
             >
             <div className="group" id="code-buttons" style={{top:4,left:4,width:480,position:'absolute'}}>
-                <Button style={{marginLeft:5,height:34}} onClick={this.props.translateCode}><input type="checkbox"/>Translate</Button>
+                <Button style={{marginLeft:5,height:34}} onClick={this.props.translateCode}><input type="checkbox" checked={this.props.translateChecked} onChange={this.props.handleInputChange} />Translate</Button>
                 <Button style={{marginLeft:5,height:34}}  onClick={this.props.restoreFirmware}>Restore</Button>
                 <Button style={{marginLeft:5,height:34}} onClick={this.props.uploadProj}>Upload</Button>
                 <Button style={{float:'right',height:34}} onClick={this.props.openIno}>{<img style={{height: 20}} src={arduinoIcon}/>}Open with arduino</Button>

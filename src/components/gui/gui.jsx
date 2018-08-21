@@ -57,10 +57,10 @@ let isRendererSupported = null;
 const GUIComponent = props => {
     const {
         activeTabIndex,
-        basePath,
+        // basePath,
         backdropLibraryVisible,
         backpackOptions,
-        blocksTabVisible,
+        // blocksTabVisible,
         cardsVisible,
         children,
         costumeLibraryVisible,
@@ -77,23 +77,23 @@ const GUIComponent = props => {
         onRequestCloseBackdropLibrary,
         onRequestCloseCostumeLibrary,
         onSeeCommunity,
-        previewInfoVisible,
+        // previewInfoVisible,
         targetIsStage,
-        consoleMsg,
-        code,
-        editorCode,
+        // consoleMsg,
+        // code,
+        // editorCode,
         soundsTabVisible,
         stageSizeMode,
         tipsLibraryVisible,
         vm,
-        kb,
-        showArduinoPanel,
+        // kb,
+        // showArduinoPanel,
         toggleArduinoPanel,
-        clearConsole,
-        consoleSend,
+        // clearConsole,
+        // consoleSend,
         togglePopup,
-        showPopups,
-        blocksProps,
+        // showPopups,
+        // blocksProps,
         serialDev,
         getInputValue,
         onChange,
@@ -289,8 +289,7 @@ const GUIComponent = props => {
                     </Box>
                 </Box>
                 <DragLayer />
-
-                {children[0]}
+                {toggleArduinoPanel ?(children[0]):null}
 
             </Box>
         );
