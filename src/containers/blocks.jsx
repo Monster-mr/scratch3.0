@@ -222,6 +222,7 @@ class Blocks extends React.Component {
         this.flyoutWorkspace = this.workspace
             .getFlyout()
             .getWorkspace();
+        this.workspace.addChangeListener(this.props.timeTranslate);
         this.flyoutWorkspace.addChangeListener(this.props.vm.flyoutBlockListener);
         this.flyoutWorkspace.addChangeListener(this.props.vm.monitorBlockListener);
         this.props.vm.addListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -382,19 +383,19 @@ class Blocks extends React.Component {
     render () {
         /* eslint-disable no-unused-vars */
         const {
-            anyModalVisible,
+            // anyModalVisible,
             customProceduresVisible,
             extensionLibraryVisible,
             options,
-            stageSize,
+            // stageSize,
             vm,
-            isVisible,
-            onActivateColorPicker,
-            updateToolboxState,
-            onActivateCustomProcedures,
+            // isVisible,
+            // onActivateColorPicker,
+            // updateToolboxState,
+            // onActivateCustomProcedures,
             onRequestCloseExtensionLibrary,
-            onRequestCloseCustomProcedures,
-            toolboxXML,
+            // onRequestCloseCustomProcedures,
+            // toolboxXML,
             ...props
         } = this.props;
         /* eslint-enable no-unused-vars */

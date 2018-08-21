@@ -37,6 +37,8 @@ class ArduinoPanel extends React.Component {
                 uploadProj={this.props.uploadProj}//arduion upload3
                 openIno={this.props.openIno}//open arduion4
                 codeRef={this.props.updateEditorInstance}
+                translateChecked={this.props.translateChecked}
+                handleInputChange={this.props.handleInputChange}
                 consoleSend={this.props.consoleSend}
                 restoreFirmware={this.props.restoreFirmware}//2
                 windowHeight={this.props.windowHeight}

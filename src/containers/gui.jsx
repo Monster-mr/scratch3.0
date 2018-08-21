@@ -36,7 +36,7 @@ class GUI extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, ['toggleArduinoPanel','toggelStage','translateCode','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
-            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware",]);
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","handleInputChange","timeTranslate",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
         this.state = {
@@ -53,8 +53,26 @@ class GUI extends React.Component {
             getInputValue:'Scratch 3.0 GUI',
             editorCode: '#include <Arduino.h>\n\nvoid setup(){\n}\n\nvoid loop(){\n}\n\n',
             windowHeight: window.innerHeight,
+            translateChecked:false,
+            timeWorkspace:null
         };
     }
+
+
+    timeTranslate() {
+        if (this.state.translateChecked){
+            const code = this.childCp.sb2cpp();
+            this.setState({editorCode: code});
+        }
+    }
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({
+            translateChecked: value}
+        );}
+
+
     resizeWindow(){
         console.log("window "+window.innerHeight);
         this.setState({windowHeight:window.innerHeight});
@@ -72,7 +90,7 @@ class GUI extends React.Component {
         this.setState({consoleMsg:this.consoleMsgBuff})*/
         this.props.kb.sendCmd(msg);
         if(msg instanceof Uint8Array){
-            var msg = Buffer.from(msg).toString('hex')
+            var msg = Buffer.from(msg).toString('hex');
             this.consoleMsgBuff.push({msg:msg,color:"Gray"});
             this.setState({consoleMsg:this.consoleMsgBuff})
         }else{
@@ -112,6 +130,10 @@ class GUI extends React.Component {
         this.props.kb.arduino.sendCmdEvent.addListener(this.sendCommonData);
         this.props.vm.initialized = true;
         window.onresize = this.resizeWindow;
+
+        // console.log(this.childCp.workspace);  作为自己的一次告诫react监听问题
+        //
+        // this.childCp.workspace.addChangeListener(this.timeTranslate)
     }
     componentWillReceiveProps (nextProps) {
         if (this.props.projectData !== nextProps.projectData) {
@@ -185,7 +207,7 @@ class GUI extends React.Component {
     }
     translateCode() {
          var code = this.childCp.sb2cpp();
-         this.setState({editorCode: code});
+         this.setState({editorCode: code,timeWorkspace:this.childCp});
      }
     uploadProject() {  //arduion upload
         var code = this.editor.getValue();
@@ -199,7 +221,14 @@ class GUI extends React.Component {
         var code = this.props.kb.loadFirmware(firmware.path);
         this.setState({editorCode: code});
     }
-    render () {
+    render (){
+        // const wlq = this.childCp;
+        // console.log(wlq);
+        console.log(this.state.timeWorkspace);
+        // if (this.state.translateChecked){
+        //     var code = this.state.timeWorkspace.sb2cpp();
+        //     this.setState({editorCode: code});
+        // }
         if (this.state.loadingError) {
             throw new Error(
                 `Failed to load project from server [id=${window.location.hash}]: ${this.state.errorMessage}`);
@@ -260,12 +289,15 @@ class GUI extends React.Component {
                                   uploadProj={this.uploadProject}
                                   openIno={this.openIno}
                                   restoreFirmware={this.restoreFirmware}
+                                  translateChecked={this.state.translateChecked}
+                                  handleInputChange={this.handleInputChange}
                                   updateEditorInstance={this.updateEditorInstance}
                                   consoleSend={this.consoleSend}/>
                 <Blocks
                     grow={1}
                     getInstance={(childCp) => { this.childCp = childCp; }}
                     isVisible={true}
+                    timeTranslate={this.timeTranslate}
                     options={{
                         media: `${this.props.basePath}static/blocks-media/`
                     }}
