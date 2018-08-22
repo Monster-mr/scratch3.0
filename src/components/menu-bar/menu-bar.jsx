@@ -42,7 +42,7 @@ import communityIcon from './icon--see-community.svg';
 import dropdownCaret from '../language-selector/dropdown-caret.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 
-import scratchLogo from './scratch-logo.svg';
+import scratchLogo from './KittenBotLogo.png';
 
 import helpIcon from './icon--help.svg';
 const ariaMessages = defineMessages({
