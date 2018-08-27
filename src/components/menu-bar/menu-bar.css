@@ -45,13 +45,16 @@
 }
 
 .language-icon {
-    height:  1.5rem;
+    height:  1.6rem;
 }
-
+.language-caret {
+    margin-bottom: .625rem;
+}
 .language-menu {
     display: inline-flex;
+    /*width: $language-selector-width;*/
+    width:4rem;
 }
-
 .menu {
     z-index: $z-index-menu-bar;
     top: $menu-bar-height;

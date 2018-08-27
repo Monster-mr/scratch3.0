@@ -37,7 +37,7 @@ class GUI extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, ['toggleArduinoPanel','toggelStage','translateCode','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
-            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","handleInputChange","timeTranslate","UndoStack",]);
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","handleInputChange","timeTranslate","UndoStack","nodeMailer",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
         this.state = {
@@ -48,6 +48,7 @@ class GUI extends React.Component {
             showStage: true,
             errorMessage: '',
             showPopups:false,
+            showNodemailer:false,
             portDev: [],
             connectedPort: null,
             consoleMsg: this.consoleMsgBuff,
@@ -194,6 +195,10 @@ class GUI extends React.Component {
     togglePopup(){
         this.setState({showPopups:!this.state.showPopups}); //zbl 新建项目的的值
     }
+    //邮件发送
+    nodeMailer(){
+        this.setState({showNodemailer:!this.state.showNodemailer});
+    }
     toggelStage(){
         this.setState({showStage: !this.state.showStage}); //点击显示新建项目的弹出框
     }
@@ -267,7 +272,7 @@ class GUI extends React.Component {
     render (){
         // const wlq = this.childCp;
         // console.log(wlq);
-        console.log(this.state.timeWorkspace);
+        //console.log(this.state.timeWorkspace);
         // if (this.state.translateChecked){
         //     var code = this.state.timeWorkspace.sb2cpp();
         //     this.setState({editorCode: code});
@@ -298,9 +303,11 @@ class GUI extends React.Component {
                 clearConsole={this.clearConsole}//zbl
                 consoleSend={this.consoleSend}//zbl
                 togglePopup={this.togglePopup}
+                nodeMailer={this.nodeMailer}
                 portReadLine={(line)=>this.portReadLine(line)}
                 showArduinoPanel={this.state.showArduinoPanel}
                 showPopups={this.state.showPopups}
+                showNodemailer={this.state.showNodemailer}
                 vm={vm}
                 getInputValue={this.state.getInputValue}
                 onChange={this.onChange}

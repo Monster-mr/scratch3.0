@@ -22,6 +22,7 @@ import CostumeLibrary from '../../containers/costume-library.jsx';
 import BackdropLibrary from '../../containers/backdrop-library.jsx';
 import ArduinoPanel from '../../containers/arduino-panel.jsx';
 import Popup from '../../containers/popup.jsx';
+import NodemailerCon from '../../containers/nodemailer.jsx';
 
 import Backpack from '../../containers/backpack.jsx';
 import PreviewModal from '../../containers/preview-modal.jsx';
@@ -92,6 +93,7 @@ const GUIComponent = props => {
         // clearConsole,
         // consoleSend,
         togglePopup,
+        nodeMailer,
         // showPopups,
         // blocksProps,
         serialDev,
@@ -148,6 +150,13 @@ const GUIComponent = props => {
                            getInputValue={props.getInputValue}
                            reloadPlay={props.reloadPlay}/>  //zbl 点击新建项目的传值
                 ): null}
+
+                {nodeMailer ? (
+                    <NodemailerCon nodeMailer={props.nodeMailer}
+                                   showNodemail={props.showNodemailer}
+                          />
+                ): null}
+
                 {isRendererSupported ? null : (
                     <WebGlModal />
                 )}
@@ -174,6 +183,7 @@ const GUIComponent = props => {
                     onSeeCommunity={onSeeCommunity}
                     toggleArduinoPanel={toggleArduinoPanel}
                     togglePopup={togglePopup}
+                    nodeMailer={nodeMailer}
                     refreshPort={props.refreshPort}
                     selectPort={props.selectPort}
                     serialDev={serialDev}

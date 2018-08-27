@@ -42,7 +42,7 @@ import communityIcon from './icon--see-community.svg';
 import dropdownCaret from '../language-selector/dropdown-caret.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 
-import scratchLogo from './KittenBotLogo.png';
+import scratchLogo from './dckj-logo.png';
 
 import helpIcon from './icon--help.svg';
 const ariaMessages = defineMessages({
@@ -176,39 +176,21 @@ const MenuBar = props => {
                             src={scratchLogo}
                         />
                     </div>
-                    {/*隐藏的*/}
+                    {/*语言*/}
                     <div
-                        className={classNames(styles.menuBarItem, styles.hoverable, styles.hide, {
-                            [styles.active]: props.languageMenuOpen
-                        })}
-                        onMouseUp={props.onClickLanguage}
+                        className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
                     >
-                        <MenuBarItemTooltip
-                            enable={window.location.search.indexOf('enable=language') !== -1}
-                            id="menubar-selector"
-                            place="right"
-                        >
-                            <div
-                                aria-label={props.intl.formatMessage(ariaMessages.language)}
-                                className={classNames(styles.languageMenu)}
-                            >
-                                <img
-                                    className={styles.languageIcon}
-                                    src={languageIcon}
-                                />
-                                <img
-                                    className={styles.dropdownCaret}
-                                    src={dropdownCaret}
-                                />
-                            </div>
-                            <MenuBarMenu
-                                open={props.languageMenuOpen}
-                                onRequestClose={props.onRequestCloseLanguage}
-                            >
-                                <LanguageSelector/>
-                            </MenuBarMenu>
-
-                        </MenuBarItemTooltip>
+                        <div>
+                            <img
+                                className={styles.languageIcon}
+                                src={languageIcon}
+                            />
+                            <img
+                                className={styles.languageCaret}
+                                src={dropdownCaret}
+                            />
+                        </div>
+                        <LanguageSelector label={props.intl.formatMessage(ariaMessages.language)} />
                     </div>
                     {/*         <Popup>
 
@@ -485,9 +467,10 @@ const MenuBar = props => {
             <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
                 <a
                     className={styles.feedbackLink}
-                    href="https://scratch.mit.edu/discuss/topic/299791/"
+                    //href="https://scratch.mit.edu/discuss/topic/299791/"
                     rel="noopener noreferrer"
                     target="_blank"
+                    onClick={props.nodeMailer}
                 >
                     <Button
                         className={styles.feedbackButton}
