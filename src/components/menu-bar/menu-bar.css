@@ -17,7 +17,7 @@
         simplifies by all of this by removing padding from the equation.
     */
     box-sizing: border-box;
-    height: $menu-bar-height;
+    height: 3rem;
 
     /*
         @todo: This adds ~20px in Chrome, when scrolling to the right,
@@ -27,8 +27,8 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: .75rem;
     font-weight: bold;
-    background-color: $motion-primary;
-    color: $ui-white;
+    background-color: hsla(215, 100%, 65%, 1);
+    color: hsla(0, 100%, 100%, 1);
 }
 
 .main-menu {
@@ -38,7 +38,9 @@
     flex-wrap: nowrap;
     align-items: center;
 }
-
+.main-menu .menu-bar-item {
+    padding: 0 0.75rem;
+}
 .scratch-logo {
     height:  1.6rem;
     vertical-align: middle;
@@ -56,20 +58,20 @@
     width:4rem;
 }
 .menu {
-    z-index: $z-index-menu-bar;
-    top: $menu-bar-height;
+    z-index: 50;
+    top:3rem;
 }
 
 .menu-bar-item {
     display: flex;
     padding: 0 0.25rem;
     text-decoration: none;
-    color: $ui-white;
+    color: hsla(0, 100%, 100%, 1);
     user-select: none;
     align-self: center;
     position: relative;
     align-items: center;
-    height: $menu-bar-height;
+    height: 3rem;
 }
 
 .menu-bar-item.hoverable {
@@ -78,25 +80,19 @@
 
 .menu-bar-item.active,
 .menu-bar-item.hoverable:hover {
-    background-color: $ui-black-transparent;
-}
-.menu-bar-item.hoverable.hide{   /*隐藏地球图标和header最后部分*/
-display: none;
-}
-.menu-bar-item.hide{
-    display: none;    /*隐藏分享*/
+    background-color: hsla(0, 0%, 0%, 0.15);
 }
 .menu-bar-item .btn{
     border-radius: 5px;
-    color: $motion-primary;
-    background-color: $ui-white;
+    color:  hsla(215, 100%, 65%, 1);
+    background-color: hsla(0, 100%, 100%, 1);
     display: block;
     height: 35px;
     line-height: 35px;
     position: absolute;
     left: -100px;
 }
-
+/*
 .file-group {
     display: flex;
     flex-direction: row;
@@ -105,15 +101,15 @@ display: none;
 
 .file-group .menu-bar-item {
     padding: 0 0.75rem;
-}
+}*/
 
 .feedback-link {
-    color: $motion-primary;
+    color:  hsla(215, 100%, 65%, 1);
     text-decoration: none;
 }
 
 .feedback-button {
-    background-color: $ui-white;
+    background-color: hsla(0, 100%, 100%, 1);
     height: 34px;
 }
 
@@ -124,7 +120,7 @@ display: none;
 }
 
 .title-field {
-/*    border: 1px dashed $ui-black-transparent;*/
+/*    border: 1px dashed hsla(0, 0%, 0%, 0.15);*/
     border-radius: .25rem;
     width: 12rem;
     height: 34px;
@@ -135,23 +131,20 @@ display: none;
 
 .title-field,
 .title-field::placeholder {
-    color: $ui-white;
+    color: hsla(0, 100%, 100%, 1);
     font-weight: bold;
     font-size: .8rem;
 }
 
 .share-button {
-    background: $data-primary;
+    background: hsla(30, 100%, 55%, 1);
     height: 32px;
-    box-shadow: 0 0 0 1px $ui-black-transparent;
+    box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.15);
 }
 
 .community-button {
     height: 32px;
-    box-shadow: 0 0 0 1px $ui-black-transparent;
-}
-.menu-bar-item.community-button-wrapper{       /*隐藏查看社区*/
-    display: none;
+    box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.15);
 }
 .community-button-icon {
     height: 1.25rem;

@@ -68,9 +68,10 @@ class NodemailerCom extends React.Component {
         var stylenodemailer={display: showNodemail, width: '500px', height: '150px', background: '#ffffff', position: 'absolute', left: '50%',
             top: '100px', marginLeft: '-250px', zIndex:'99999',};
         var text={width:'240px',height:'30px',paddingLeft:'5px',};
-        var btn={ width:'80px', height:'30px',};
+        var btn={ width:'80px', height:'30px',display: 'inline-block',padding: '6px 12px',marginBottom: '0',fontSize: '14px',fontWeight: 'normal',lineHeight: '1.42857143',backgroundColor: '#5cb85c',
+        cursor: 'pointer',border: '1px solid #4cae4c',borderRadius: '4px',marginTop: '10px',color: '#fff',textAlign: 'center',marginLeft: '6px',};
         return (
-  <div style={stylenodemailer}>{/*onMouseLeave={this.props.nodeMailer}*/}
+  <div style={stylenodemailer}>
       <form id='mailsend' action='mailto:1498656178@qq.com' method='get'>
               <textarea name="mailbody" cols="70" rows="14"  ref={ (input) => this.myInput = input }></textarea>
               <input style={text} type="text" placeholder="请您输入您的邮箱账户供我们回复" ref={ (input) => this.ymail = input }/>

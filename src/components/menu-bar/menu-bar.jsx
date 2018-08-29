@@ -167,7 +167,8 @@ const MenuBar = props => {
     return (
         <Box className={styles.menuBar}>
             <div className={styles.mainMenu}>
-                <div className={styles.fileGroup}>
+                {/*<div className={styles.fileGroup}>*/}
+                    {/*logo*/}
                     <div className={classNames(styles.menuBarItem)}>
                         <img
                             alt="Scratch"
@@ -192,9 +193,6 @@ const MenuBar = props => {
                         </div>
                         <LanguageSelector label={props.intl.formatMessage(ariaMessages.language)} />
                     </div>
-                    {/*         <Popup>
-
-                </Popup>*/}
                     {/*fengedian 文件wenjian*/}
                     <div
                         className={classNames(styles.menuBarItem, styles.hoverable, {
@@ -342,7 +340,7 @@ const MenuBar = props => {
                     </div>
 
 
-                    {/*fengedian  */}
+                    {/*hardware  */}
                     <div
                         className={classNames(styles.menuBarItem, styles.hoverable, {
                             [styles.active]: props.hardwareMenuOpen                     //wlq
@@ -368,48 +366,46 @@ const MenuBar = props => {
 
                         </MenuBarMenu>
                     </div>
-                </div>
-
-                {/*fengedian  */}
-                <div
-                    className={classNames(styles.menuBarItem, styles.hoverable, {
-                        [styles.active]: props.connectMenuOpen                      //wlq
-                    })}
-                    onMouseUp={props.onClickConnect}
-                >
-                    <div className={classNames(styles.editMenu)}
-                         onClick={props.refreshPort}
-                         onSelect={props.selectPort}
+                    {/*connect端口  */}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: props.connectMenuOpen                      //wlq
+                        })}
+                        onMouseUp={props.onClickConnect}
                     >
-                        Connect
+                        <div className={classNames(styles.editMenu)}
+                             onClick={props.refreshPort}
+                             onSelect={props.selectPort}
+                        >
+                            Connect
+                        </div>
+                        <MenuBarMenu
+                            open={props.connectMenuOpen}
+                            onRequestClose={props.onRequestCloseConnect}
+                        >{portMenuItem}
+                            {/* <MenuBarItemTooltip id="usb" enable={true}>
+                        <MenuItem
+                        // onClick={Arduino}
+                        >
+                        端口
+                        </MenuItem>
+                        </MenuBarItemTooltip>
+                        <MenuBarItemTooltip id="wifi" enable={true}>
+                        <MenuItem
+                        // onClick={Arduino}
+
+                        >
+                        wifi
+                        </MenuItem>
+                        </MenuBarItemTooltip>*/}
+
+                        </MenuBarMenu>
                     </div>
-                    <MenuBarMenu
-                        open={props.connectMenuOpen}
-                        onRequestClose={props.onRequestCloseConnect}
-                    >{portMenuItem}
-                        {/*<MenuBarItemTooltip id="usb" enable={true}>*/}
-                        {/*<MenuItem*/}
-                        {/*// onClick={Arduino}*/}
-
-                        {/*>*/}
-                        {/*端口*/}
-                        {/*</MenuItem>*/}
-                        {/*</MenuBarItemTooltip>*/}
-                        {/*<MenuBarItemTooltip id="wifi" enable={true}>*/}
-                        {/*<MenuItem*/}
-                        {/*// onClick={Arduino}*/}
-
-                        {/*>*/}
-                        {/*wifi*/}
-                        {/*</MenuItem>*/}
-                        {/*</MenuBarItemTooltip>*/}
-
-                    </MenuBarMenu>
-                </div>
+                {/*</div>*/}
             </div>
-
             {/*fengedian*/}
             <Divider className={classNames(styles.divider)}/>
+            {/*输入框*/}
             <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field" enable={true}>
                     <input
@@ -421,7 +417,7 @@ const MenuBar = props => {
                 </MenuBarItemTooltip>
             </div>
             {/*fengeidan隐藏掉的分享*/}
-            <div className={classNames(styles.menuBarItem, styles.hide)}>
+          {/*  <div className={classNames(styles.menuBarItem)}>
                 <MenuBarItemTooltip id="share-button">
                     <Button className={classNames(styles.shareButton)}>
                         <FormattedMessage
@@ -431,10 +427,10 @@ const MenuBar = props => {
                         />
                     </Button>
                 </MenuBarItemTooltip>
-            </div>
+            </div>*/}
 
             {/*fengedian隐藏掉的查看社区 */}
-            <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
+          {/*  <div className={classNames(styles.menuBarItem)}>
                 {props.enableCommunity ?
                     <Button
                         className={classNames(styles.communityButton)}
@@ -462,12 +458,11 @@ const MenuBar = props => {
                         </Button>
                     </MenuBarItemTooltip>
                 }
-            </div>
+            </div>*/}
             {/*大的分享分割点 意见反馈和使用指南*/}
             <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
                 <a
                     className={styles.feedbackLink}
-                    //href="https://scratch.mit.edu/discuss/topic/299791/"
                     rel="noopener noreferrer"
                     target="_blank"
                     onClick={props.nodeMailer}
@@ -503,13 +498,12 @@ const MenuBar = props => {
                     src={helpIcon}
                 />*/}
                 </div>
-                <MenuBarItemTooltip id="mystuff">
+               {/* <MenuBarItemTooltip id="mystuff">
                     <div
                         className={classNames(
                             styles.menuBarItem,
                             styles.hoverable,
                             styles.mystuffButton,
-                            styles.hide
                         )}
                     >
                         <img
@@ -527,7 +521,6 @@ const MenuBar = props => {
                             styles.menuBarItem,
                             styles.hoverable,
                             styles.accountNavMenu,
-                            styles.hide
                         )}
                     >
                         <img
@@ -535,14 +528,14 @@ const MenuBar = props => {
                             src={profileIcon}
                         />
                         <span>
-                        {'scratch-cat' /* @todo username */}
+                        {'scratch-cat' /* @todo username *!/
                     </span>
                         <img
                             className={styles.dropdownCaretIcon}
                             src={dropdownCaret}
                         />
                     </div>
-                </MenuBarItemTooltip>
+                </MenuBarItemTooltip>*/}
             </div>
         </Box>
     );
