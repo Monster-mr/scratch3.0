@@ -207,6 +207,12 @@ export default function (vm) {
         const monitoredBlock = vm.runtime.monitorBlocks._blocks[blockId];
         return monitoredBlock ? monitoredBlock.isMonitored : false;
     };
+    ScratchBlocks.FlyoutExtensionCategoryHeader.getExtensionState = function (extensionId) {
+        if (vm.getPeripheralIsConnected(extensionId)) {
+            return ScratchBlocks.StatusButtonState.READY;
+        }
+        return ScratchBlocks.StatusButtonState.NOT_READY;
+    };
 
     return ScratchBlocks;
 }

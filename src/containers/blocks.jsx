@@ -9,8 +9,10 @@ import VM from '../../scratch-vm';
 
 import analytics from '../lib/analytics';
 import Prompt from './prompt.jsx';
+import ConnectionModal from './connection-modal.jsx';
 import BlocksComponent from '../components/blocks/blocks.jsx';
 import ExtensionLibrary from './extension-library.jsx';
+import extensionData from '../lib/libraries/extensions/index.jsx';
 import CustomProcedures from './custom-procedures.jsx';
 import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants';
@@ -62,6 +64,8 @@ class Blocks extends React.Component {
             'attachVM',
             'detachVM',
             'handleCategorySelected',
+            'handleConnectionModalStart',
+            'handleConnectionModalClose',
             'handlePromptStart',
             'handlePromptCallback',
             'handlePromptClose',
@@ -84,9 +88,11 @@ class Blocks extends React.Component {
         this.redoStack_ = [];
         this.undoStack_ = [];
         this.ScratchBlocks.prompt = this.handlePromptStart;
+        this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
         this.state = {
             workspaceMetrics: {},
-            prompt:null
+            prompt:null,
+            connectionModal: null
         };
         this.onTargetsUpdate = debounce(this.onTargetsUpdate, 100);
         this.toolboxUpdateQueue = [];
@@ -126,6 +132,7 @@ class Blocks extends React.Component {
     shouldComponentUpdate (nextProps, nextState) {
         return (
             this.state.prompt !== nextState.prompt ||
+            this.state.connectionModal !== nextState.connectionModal ||
             this.props.isVisible !== nextProps.isVisible ||
             this.props.toolboxXML !== nextProps.toolboxXML ||
             this.props.extensionLibraryVisible !== nextProps.extensionLibraryVisible ||
@@ -237,6 +244,8 @@ class Blocks extends React.Component {
         this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
+        this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
+        this.props.vm.removeListener('PERIPHERAL_ERROR', this.handleStatusButtonUpdate);
     }
     detachVM () {
         this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -248,6 +257,8 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('targetsUpdate', this.onTargetsUpdate);
         this.props.vm.removeListener('EXTENSION_ADDED', this.handleExtensionAdded);
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
+        this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
+        this.props.vm.removeListener('PERIPHERAL_ERROR', this.handleStatusButtonUpdate);
     }
 
     updateToolboxBlockValue (id, value) {
@@ -343,7 +354,17 @@ class Blocks extends React.Component {
         // @todo Later we should replace this to avoid all the warnings from redefining blocks.
         this.handleExtensionAdded(blocksInfo);
     }
+/*    handleCategorySelected (categoryId) {
+        this.withToolboxUpdates(() => {
+            this.workspace.toolbox_.setSelectedCategoryById(categoryId);
+        });
+    }*/
     handleCategorySelected (categoryId) {
+        const extension = extensionData.find(ext => ext.extensionId === categoryId);
+        if (extension && extension.launchDeviceConnectionFlow) {
+            this.handleConnectionModalStart(categoryId);
+        }
+
         this.withToolboxUpdates(() => {
             this.workspace.toolbox_.setSelectedCategoryById(categoryId);
         });
@@ -369,6 +390,27 @@ class Blocks extends React.Component {
         p.prompt.showMoreOptions =
             optVarType !== this.ScratchBlocks.BROADCAST_MESSAGE_VARIABLE_TYPE;
         this.setState(p);
+    }
+    handleConnectionModalStart (extensionId) {
+        const extension = extensionData.find(ext => ext.extensionId === extensionId);
+        if (extension) {
+            this.setState({connectionModal: {
+                    extensionId: extensionId,
+                    useAutoScan: extension.useAutoScan,
+                    deviceImage: extension.deviceImage,
+                    smallDeviceImage: extension.smallDeviceImage,
+                    deviceButtonImage: extension.deviceButtonImage,
+                    name: extension.name,
+                    connectingMessage: extension.connectingMessage,
+                    helpLink: extension.helpLink
+                }});
+        }
+    }
+    handleConnectionModalClose () {
+        this.setState({connectionModal: null});
+    }
+    handleStatusButtonUpdate () {
+        this.ScratchBlocks.refreshStatusButtons(this.workspace);
     }
     handlePromptCallback (data) {
         this.state.prompt.callback(data);
@@ -420,6 +462,14 @@ class Blocks extends React.Component {
                         title={this.state.prompt.title}
                         onCancel={this.handlePromptClose}
                         onOk={this.handlePromptCallback}
+                    />
+                ) : null}
+                {this.state.connectionModal ? (
+                    <ConnectionModal
+                        {...this.state.connectionModal}
+                        vm={vm}
+                        onCancel={this.handleConnectionModalClose}
+                        onStatusButtonUpdate={this.handleStatusButtonUpdate}
                     />
                 ) : null}
                 {extensionLibraryVisible ? (
@@ -540,9 +590,9 @@ const mapDispatchToProps = dispatch => ({
     }
 });
 
-export default
+export default errorBoundaryHOC('Blocks')(
     connect(
         mapStateToProps,
         mapDispatchToProps
     )(Blocks)
-;
+);

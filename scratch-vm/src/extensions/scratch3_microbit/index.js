@@ -1,22 +1,17 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const log = require('../../util/log');
-const ScratchBLE = require('../../io/scratchBLE');
+const cast = require('../../util/cast');
+const formatMessage = require('format-message');
+const BLESession = require('../../io/bleSession');
 const Base64Util = require('../../util/base64-util');
 
 /**
- * Icon svg to be displayed at the left edge of each extension block, encoded as a data URI.
+ * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
  * @type {string}
  */
 // eslint-disable-next-line max-len
-const blockIconURI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4KCjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgdmVyc2lvbj0iMS4xIgogICBpZD0ibWljcm9iaXQtbG9nbyIKICAgeD0iMHB4IgogICB5PSIwcHgiCiAgIHZpZXdCb3g9IjAgMCA0MC43MDUwMDIgNDAuNzA1MDAxIgogICBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyMTMgNTUiCiAgIHhtbDpzcGFjZT0icHJlc2VydmUiCiAgIGlua3NjYXBlOnZlcnNpb249IjAuOTEgcjEzNzI1IgogICBzb2RpcG9kaTpkb2NuYW1lPSJiYmMtbWljcm9iaXQtd2hpdGUgKDEpLnN2ZyIKICAgd2lkdGg9IjQwLjcwNTAwMiIKICAgaGVpZ2h0PSI0MC43MDUwMDIiPjxtZXRhZGF0YQogICAgIGlkPSJtZXRhZGF0YTQ5Ij48cmRmOlJERj48Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+PGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+PGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPjxkYzp0aXRsZT48L2RjOnRpdGxlPjwvY2M6V29yaz48L3JkZjpSREY+PC9tZXRhZGF0YT48ZGVmcwogICAgIGlkPSJkZWZzNDciIC8+PHNvZGlwb2RpOm5hbWVkdmlldwogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIKICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgICBib3JkZXJvcGFjaXR5PSIxIgogICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiCiAgICAgZ3JpZHRvbGVyYW5jZT0iMTAiCiAgICAgZ3VpZGV0b2xlcmFuY2U9IjEwIgogICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIxMjUzIgogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9Ijg1NiIKICAgICBpZD0ibmFtZWR2aWV3NDUiCiAgICAgc2hvd2dyaWQ9ImZhbHNlIgogICAgIGZpdC1tYXJnaW4tdG9wPSIwIgogICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIKICAgICBmaXQtbWFyZ2luLXJpZ2h0PSIwIgogICAgIGZpdC1tYXJnaW4tYm90dG9tPSIwIgogICAgIGlua3NjYXBlOnpvb209IjEyLjM5NDM2NiIKICAgICBpbmtzY2FwZTpjeD0iMTcuNDY4MDc1IgogICAgIGlua3NjYXBlOmN5PSIxNy40Nzc5MDYiCiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjI0IgogICAgIGlua3NjYXBlOndpbmRvdy15PSIxMiIKICAgICBpbmtzY2FwZTp3aW5kb3ctbWF4aW1pemVkPSIwIgogICAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9Im1pY3JvYml0LWxvZ28iIC8+PHBhdGgKICAgICBzdHlsZT0iZmlsbDojZmZmZmZmIgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgaWQ9InBhdGgzOSIKICAgICBkPSJtIDI4Ljg3NCwyMi43MDEwMDEgYyAxLjI5OCwwIDIuMzQ3LC0xLjA1MyAyLjM0NywtMi4zNDkgMCwtMS4yOTYgLTEuMDQ4LC0yLjM0ODAwMSAtMi4zNDcsLTIuMzQ4MDAxIC0xLjI5NywwIC0yLjM0OCwxLjA1MjAwMSAtMi4zNDgsMi4zNDgwMDEgMC4wMDEsMS4yOTYgMS4wNTEsMi4zNDkgMi4zNDgsMi4zNDkiIC8+PHBhdGgKICAgICBzdHlsZT0iZmlsbDojZmZmZmZmIgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgaWQ9InBhdGg0MSIKICAgICBkPSJtIDExLjYzLDE4LjAwNCBjIC0xLjI5NywwIC0yLjM0OSwxLjA1MjAwMSAtMi4zNDksMi4zNDgwMDEgMCwxLjI5NiAxLjA1MiwyLjM0OSAyLjM0OSwyLjM0OSAxLjI5NiwwIDIuMzQ3LC0xLjA1MyAyLjM0NywtMi4zNDkgMCwtMS4yOTYgLTEuMDUxLC0yLjM0ODAwMSAtMi4zNDcsLTIuMzQ4MDAxIiAvPjxwYXRoCiAgICAgc3R5bGU9ImZpbGw6I2ZmZmZmZiIKICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgIGlkPSJwYXRoNDMiCiAgICAgZD0ibSAxMS42MywxMy4zNzQ1IGMgLTMuODQ4LDAgLTYuOTc4LDMuMTI5IC02Ljk3OCw2Ljk3ODAwMSAwLDMuODQ4IDMuMTMsNi45NzggNi45NzgsNi45NzggbCAxNy40NDUsMCBjIDMuODQ4LDAgNi45NzcsLTMuMTMgNi45NzcsLTYuOTc4IDAsLTMuODQ5MDAxIC0zLjEyOSwtNi45NzgwMDEgLTYuOTc3LC02Ljk3ODAwMSBsIC0xNy40NDUsMCBtIDE3LjQ0NSwxOC42MDgwMDEgLTE3LjQ0NSwwIGMgLTYuNDEzLDAgLTExLjYzLC01LjIxNyAtMTEuNjMsLTExLjYzIEMgMCwxMy45Mzk1IDUuMjE3LDguNzIyNTAwNCAxMS42Myw4LjcyMjUwMDQgbCAxNy40NDUsMCBjIDYuNDEzLDAgMTEuNjMsNS4yMTY5OTk2IDExLjYzLDExLjYzMDAwMDYgLTEwZS00LDYuNDEzIC01LjIxNywxMS42MyAtMTEuNjMsMTEuNjMiIC8+PC9zdmc+';
-
-/**
- * Icon svg to be displayed in the menu encoded as a data URI.
- * @type {string}
- */
-// eslint-disable-next-line max-len
-const menuIconURI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4KCjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgdmVyc2lvbj0iMS4xIgogICBpZD0ibWljcm9iaXQtbG9nbyIKICAgeD0iMHB4IgogICB5PSIwcHgiCiAgIHZpZXdCb3g9IjAgMCA0MC43MDUwMDIgNDAuNzA1MDAxIgogICBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyMTMgNTUiCiAgIHhtbDpzcGFjZT0icHJlc2VydmUiCiAgIGlua3NjYXBlOnZlcnNpb249IjAuOTEgcjEzNzI1IgogICBzb2RpcG9kaTpkb2NuYW1lPSJiYmMtbWljcm9iaXQtYmxhY2sgKDEpLnN2ZyIKICAgd2lkdGg9IjQwLjcwNTAwMiIKICAgaGVpZ2h0PSI0MC43MDUwMDIiPjxtZXRhZGF0YQogICAgIGlkPSJtZXRhZGF0YTQ5Ij48cmRmOlJERj48Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+PGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+PGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPjxkYzp0aXRsZT48L2RjOnRpdGxlPjwvY2M6V29yaz48L3JkZjpSREY+PC9tZXRhZGF0YT48ZGVmcwogICAgIGlkPSJkZWZzNDciIC8+PHNvZGlwb2RpOm5hbWVkdmlldwogICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIKICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIKICAgICBib3JkZXJvcGFjaXR5PSIxIgogICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiCiAgICAgZ3JpZHRvbGVyYW5jZT0iMTAiCiAgICAgZ3VpZGV0b2xlcmFuY2U9IjEwIgogICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIxMjUzIgogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9IjEwNzYiCiAgICAgaWQ9Im5hbWVkdmlldzQ1IgogICAgIHNob3dncmlkPSJmYWxzZSIKICAgICBmaXQtbWFyZ2luLXRvcD0iMCIKICAgICBmaXQtbWFyZ2luLWxlZnQ9IjAiCiAgICAgZml0LW1hcmdpbi1yaWdodD0iMCIKICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMCIKICAgICBpbmtzY2FwZTp6b29tPSIxLjU0OTI5NTgiCiAgICAgaW5rc2NhcGU6Y3g9IjQyLjIzNyIKICAgICBpbmtzY2FwZTpjeT0iMTIuNjI4IgogICAgIGlua3NjYXBlOndpbmRvdy14PSIxNDYwIgogICAgIGlua3NjYXBlOndpbmRvdy15PSI0MyIKICAgICBpbmtzY2FwZTp3aW5kb3ctbWF4aW1pemVkPSIwIgogICAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9Im1pY3JvYml0LWxvZ28iIC8+PHBhdGgKICAgICBzdHlsZT0iZmlsbDojMDAwMDAwIgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgaWQ9InBhdGgzOSIKICAgICBkPSJtIDI4Ljg3NCwyMi43MDEwMDEgYyAxLjI5OCwwIDIuMzQ3LC0xLjA1MyAyLjM0NywtMi4zNDkgMCwtMS4yOTYgLTEuMDQ4LC0yLjM0ODAwMSAtMi4zNDcsLTIuMzQ4MDAxIC0xLjI5NywwIC0yLjM0OCwxLjA1MjAwMSAtMi4zNDgsMi4zNDgwMDEgMC4wMDEsMS4yOTYgMS4wNTEsMi4zNDkgMi4zNDgsMi4zNDkiIC8+PHBhdGgKICAgICBzdHlsZT0iZmlsbDojMDAwMDAwIgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgaWQ9InBhdGg0MSIKICAgICBkPSJtIDExLjYzLDE4LjAwNCBjIC0xLjI5NywwIC0yLjM0OSwxLjA1MjAwMSAtMi4zNDksMi4zNDgwMDEgMCwxLjI5NiAxLjA1MiwyLjM0OSAyLjM0OSwyLjM0OSAxLjI5NiwwIDIuMzQ3LC0xLjA1MyAyLjM0NywtMi4zNDkgMCwtMS4yOTYgLTEuMDUxLC0yLjM0ODAwMSAtMi4zNDcsLTIuMzQ4MDAxIiAvPjxwYXRoCiAgICAgc3R5bGU9ImZpbGw6IzAwMDAwMCIKICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgIGlkPSJwYXRoNDMiCiAgICAgZD0ibSAxMS42MywxMy4zNzQ1IGMgLTMuODQ4LDAgLTYuOTc4LDMuMTI5IC02Ljk3OCw2Ljk3ODAwMSAwLDMuODQ4IDMuMTMsNi45NzggNi45NzgsNi45NzggbCAxNy40NDUsMCBjIDMuODQ4LDAgNi45NzcsLTMuMTMgNi45NzcsLTYuOTc4IDAsLTMuODQ5MDAxIC0zLjEyOSwtNi45NzgwMDEgLTYuOTc3LC02Ljk3ODAwMSBsIC0xNy40NDUsMCBtIDE3LjQ0NSwxOC42MDgwMDEgLTE3LjQ0NSwwIGMgLTYuNDEzLDAgLTExLjYzLC01LjIxNyAtMTEuNjMsLTExLjYzIEMgMCwxMy45Mzk1IDUuMjE3LDguNzIyNTAwNCAxMS42Myw4LjcyMjUwMDQgbCAxNy40NDUsMCBjIDYuNDEzLDAgMTEuNjMsNS4yMTY5OTk2IDExLjYzLDExLjYzMDAwMDYgLTEwZS00LDYuNDEzIC01LjIxNywxMS42MyAtMTEuNjMsMTEuNjMiIC8+PC9zdmc+';
+const blockIconURI = 'data:image/png;base64,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';
 
 /**
  * Enum for micro:bit BLE command protocol.
@@ -29,6 +24,14 @@ const BLECommand = {
     CMD_DISPLAY_TEXT: 0x81,
     CMD_DISPLAY_LED: 0x82
 };
+
+const BLETimeout = 4500; // TODO: might need tweaking based on how long the device takes to start sending data
+
+/**
+ * A time interval to wait (in milliseconds) while a block that sends a BLE message is running.
+ * @type {number}
+ */
+const BLESendInterval = 100;
 
 /**
  * Enum for micro:bit protocol.
@@ -50,8 +53,9 @@ class MicroBit {
     /**
      * Construct a MicroBit communication object.
      * @param {Runtime} runtime - the Scratch 3.0 runtime
+     * @param {string} extensionId - the id of the extension
      */
-    constructor (runtime) {
+    constructor (runtime, extensionId) {
 
         /**
          * The Scratch 3.0 runtime used to trigger the green flag button.
@@ -61,11 +65,12 @@ class MicroBit {
         this._runtime = runtime;
 
         /**
-         * The ScratchBLE connection session for reading/writing device data.
-         * @type {ScratchBLE}
+         * The BluetoothLowEnergy connection session for reading/writing device data.
+         * @type {BLESession}
          * @private
          */
-        this._ble = new ScratchBLE();
+        this._ble = null;
+        this._runtime.registerExtensionDevice(extensionId, this);
 
         /**
          * The most recently received value for each sensor.
@@ -103,32 +108,79 @@ class MicroBit {
             }
         };
 
-        // TODO: Temporary until the gui requests a device connection
-        this._ble.waitForSocket()
-            // TODO: remove pinging once no longer needed
-            .then(() => this._ble.sendRemoteRequest('pingMe'))
-            .then(() => this._onBLEReady());
+        /**
+         * Interval ID for data reading timeout.
+         * @type {number}
+         * @private
+         */
+        this._timeoutID = null;
 
-        // TODO: Add ScratchBLE 'disconnect' handling
+        /**
+         * A flag that is true while we are busy sending data to the BLE session.
+         * @type {boolean}
+         * @private
+         */
+        this._busy = false;
 
+        /**
+         * ID for a timeout which is used to clear the busy flag if it has been
+         * true for a long time.
+         */
+        this._busyTimeoutID = null;
+    }
+
+    // TODO: keep here?
+    /**
+     * Called by the runtime when user wants to scan for a device.
+     */
+    startDeviceScan () {
+        this._ble = new BLESession(this._runtime, {
+            filters: [
+                {services: [BLEUUID.service]}
+            ]
+        }, this._onSessionConnect.bind(this));
+    }
+
+    // TODO: keep here?
+    /**
+     * Called by the runtime when user wants to connect to a certain device.
+     * @param {number} id - the id of the device to connect to.
+     */
+    connectDevice (id) {
+        this._ble.connectDevice(id);
+    }
+
+    disconnectSession () {
+        window.clearInterval(this._timeoutID);
+        this._ble.disconnectSession();
+    }
+
+    getPeripheralIsConnected () {
+        let connected = false;
+        if (this._ble) {
+            connected = this._ble.getPeripheralIsConnected();
+        }
+        return connected;
     }
 
     /**
      * @param {string} text - the text to display.
+     * @return {Promise} - a Promise that resolves when writing to device.
      */
     displayText (text) {
         const output = new Uint8Array(text.length);
         for (let i = 0; i < text.length; i++) {
             output[i] = text.charCodeAt(i);
         }
-        this._writeBLE(BLECommand.CMD_DISPLAY_TEXT, output);
+        return this._writeSessionData(BLECommand.CMD_DISPLAY_TEXT, output);
     }
 
     /**
      * @param {Uint8Array} matrix - the matrix to display.
+     * @return {Promise} - a Promise that resolves when writing to device.
      */
     displayMatrix (matrix) {
-        this._writeBLE(BLECommand.CMD_DISPLAY_LED, matrix);
+        return this._writeSessionData(BLECommand.CMD_DISPLAY_LED, matrix);
     }
 
     /**
@@ -182,29 +234,12 @@ class MicroBit {
     }
 
     /**
-     * Requests connection to a device when BLE session is ready.
-     */
-    _onBLEReady () {
-        this._ble.requestDevice({
-            filters: [
-                {services: [BLEUUID.service]}
-            ]
-        }, this._onBLEConnect.bind(this), this._onBLEError);
-    }
-
-    /**
      * Starts reading data from device after BLE has connected to it.
      */
-    _onBLEConnect () {
-        const callback = this._processBLEData.bind(this);
+    _onSessionConnect () {
+        const callback = this._processSessionData.bind(this);
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, callback);
-    }
-
-    /**
-     * @param {string} e - Error from BLE session.
-     */
-    _onBLEError (e) {
-        log.error(`BLE error: ${e}`);
+        this._timeoutID = window.setInterval(this.disconnectSession.bind(this), BLETimeout);
     }
 
     /**
@@ -212,7 +247,8 @@ class MicroBit {
      * @param {object} base64 - the incoming BLE data.
      * @private
      */
-    _processBLEData (base64) {
+    _processSessionData (base64) {
+        // parse data
         const data = Base64Util.base64ToUint8Array(base64);
 
         this._sensors.tiltX = data[1] | (data[0] << 8);
@@ -228,22 +264,47 @@ class MicroBit {
         this._sensors.touchPins[2] = data[8];
 
         this._sensors.gestureState = data[9];
+
+        // cancel disconnect timeout and start a new one
+        window.clearInterval(this._timeoutID);
+        this._timeoutID = window.setInterval(this.disconnectSession.bind(this), BLETimeout);
     }
 
     /**
-     * Write a message to the device BLE session.
+     * Send a message to the device BLE session.
      * @param {number} command - the BLE command hex.
-     * @param {Uint8Array} message - the message to write.
+     * @param {Uint8Array} message - the message to write
      * @private
      */
-    _writeBLE (command, message) {
+    _writeSessionData (command, message) {
+        if (!this.getPeripheralIsConnected()) return;
+        if (this._busy) return;
+
+        // Set a busy flag so that while we are sending a message and waiting for
+        // the response, additional messages are ignored.
+        this._busy = true;
+
+        // Set a timeout after which to reset the busy flag. This is used in case
+        // a BLE message was sent for which we never received a response, because
+        // e.g. the device was turned off after the message was sent. We reset
+        // the busy flag after a while so that it is possible to try again later.
+        this._busyTimeoutID = window.setTimeout(() => {
+            this._busy = false;
+        }, 5000);
+
         const output = new Uint8Array(message.length + 1);
         output[0] = command; // attach command to beginning of message
         for (let i = 0; i < message.length; i++) {
             output[i + 1] = message[i];
         }
-        const b64enc = Base64Util.uint8ArrayToBase64(output);
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, b64enc, 'base64');
+        const data = Base64Util.uint8ArrayToBase64(output);
+
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', true).then(
+            () => {
+                this._busy = false;
+                window.clearTimeout(this._busyTimeoutID);
+            }
+        );
     }
 }
 
@@ -261,23 +322,35 @@ const TiltDirection = {
 };
 
 /**
- * Converting symbols to hex values
+ * Enum for micro:bit gestures.
  * @readonly
+ * @enum {string}
  */
-const symbols2hex = {
-    '❤': 0xAAC544,
-    '♫': 0xF4AF78,
-    '☓': 0x1151151,
-    '✓': 0x8A88,
-    '↑': 0x477C84,
-    '↓': 0x427DC4,
-    '←': 0x467D84,
-    '→': 0x437CC4,
-    '◯': 0xE8C62E,
-    '☀': 0x1577DD5,
-    '☺': 0x5022E,
-    '!': 0x421004,
-    '?': 0xC91004
+const Gestures = {
+    MOVED: 'moved',
+    SHAKEN: 'shaken',
+    JUMPED: 'jumped'
+};
+
+/**
+ * Enum for micro:bit buttons.
+ * @readonly
+ * @enum {string}
+ */
+const Buttons = {
+    A: 'A',
+    B: 'B',
+    ANY: 'any'
+};
+
+/**
+ * Enum for micro:bit pin states.
+ * @readonly
+ * @enum {string}
+ */
+const PinState = {
+    ON: 'on',
+    OFF: 'off'
 };
 
 /**
@@ -289,7 +362,7 @@ class Scratch3MicroBitBlocks {
      * @return {string} - the name of this extension.
      */
     static get EXTENSION_NAME () {
-        return 'MicroBit';
+        return 'micro:bit';
     }
 
     /**
@@ -307,6 +380,143 @@ class Scratch3MicroBitBlocks {
     }
 
     /**
+     * @return {array} - text and values for each buttons menu element
+     */
+    get BUTTONS_MENU () {
+        return [
+            {
+                text: 'A',
+                value: Buttons.A
+            },
+            {
+                text: 'B',
+                value: Buttons.B
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.buttonsMenu.any',
+                    default: 'any',
+                    description: 'label for "any" element in button picker for micro:bit extension'
+                }),
+                value: Buttons.ANY
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each gestures menu element
+     */
+    get GESTURES_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'microbit.gesturesMenu.moved',
+                    default: 'moved',
+                    description: 'label for moved gesture in gesture picker for micro:bit extension'
+                }),
+                value: Gestures.MOVED
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.gesturesMenu.shaken',
+                    default: 'shaken',
+                    description: 'label for shaken gesture in gesture picker for micro:bit extension'
+                }),
+                value: Gestures.SHAKEN
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.gesturesMenu.jumped',
+                    default: 'jumped',
+                    description: 'label for jumped gesture in gesture picker for micro:bit extension'
+                }),
+                value: Gestures.JUMPED
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each pin state menu element
+     */
+    get PIN_STATE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'microbit.pinStateMenu.on',
+                    default: 'on',
+                    description: 'label for on element in pin state picker for micro:bit extension'
+                }),
+                value: PinState.ON
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.pinStateMenu.off',
+                    default: 'off',
+                    description: 'label for off element in pin state picker for micro:bit extension'
+                }),
+                value: PinState.OFF
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each tilt direction menu element
+     */
+    get TILT_DIRECTION_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'microbit.tiltDirectionMenu.front',
+                    default: 'front',
+                    description: 'label for front element in tilt direction picker for micro:bit extension'
+                }),
+                value: TiltDirection.FRONT
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.tiltDirectionMenu.back',
+                    default: 'back',
+                    description: 'label for back element in tilt direction picker for micro:bit extension'
+                }),
+                value: TiltDirection.BACK
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.tiltDirectionMenu.left',
+                    default: 'left',
+                    description: 'label for left element in tilt direction picker for micro:bit extension'
+                }),
+                value: TiltDirection.LEFT
+            },
+            {
+                text: formatMessage({
+                    id: 'microbit.tiltDirectionMenu.right',
+                    default: 'right',
+                    description: 'label for right element in tilt direction picker for micro:bit extension'
+                }),
+                value: TiltDirection.RIGHT
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each tilt direction (plus "any") menu element
+     */
+    get TILT_DIRECTION_ANY_MENU () {
+        return [
+            ...this.TILT_DIRECTION_MENU,
+            {
+                text: formatMessage({
+                    id: 'microbit.tiltDirectionMenu.any',
+                    default: 'any',
+                    description: 'label for any direction element in tilt direction picker for micro:bit extension'
+                }),
+                value: TiltDirection.ANY
+            }
+        ];
+    }
+
+    /**
      * Construct a set of MicroBit blocks.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
      */
@@ -318,7 +528,7 @@ class Scratch3MicroBitBlocks {
         this.runtime = runtime;
 
         // Create a new MicroBit device instance
-        this._device = new MicroBit(this.runtime);
+        this._device = new MicroBit(this.runtime, Scratch3MicroBitBlocks.EXTENSION_ID);
     }
 
     /**
@@ -328,90 +538,115 @@ class Scratch3MicroBitBlocks {
         return {
             id: Scratch3MicroBitBlocks.EXTENSION_ID,
             name: Scratch3MicroBitBlocks.EXTENSION_NAME,
-            menuIconURI: menuIconURI,
             blockIconURI: blockIconURI,
             showStatusButton: true,
             blocks: [
                 {
                     opcode: 'whenButtonPressed',
-                    text: 'when [BTN] button pressed',
+                    text: formatMessage({
+                        id: 'microbit.whenButtonPressed',
+                        default: 'when [BTN] button pressed',
+                        description: 'when the selected button on the micro:bit is pressed'
+                    }),
                     blockType: BlockType.HAT,
                     arguments: {
                         BTN: {
                             type: ArgumentType.STRING,
                             menu: 'buttons',
-                            defaultValue: 'A'
+                            defaultValue: Buttons.A
                         }
                     }
                 },
                 {
-                    opcode: 'whenMoved',
-                    text: 'when moved',
-                    blockType: BlockType.HAT
+                    opcode: 'isButtonPressed',
+                    text: formatMessage({
+                        id: 'microbit.isButtonPressed',
+                        default: '[BTN] button pressed?',
+                        description: 'is the selected button on the micro:bit pressed?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        BTN: {
+                            type: ArgumentType.STRING,
+                            menu: 'buttons',
+                            defaultValue: Buttons.A
+                        }
+                    }
                 },
+                '---',
                 {
-                    opcode: 'whenShaken',
-                    text: 'when shaken',
-                    blockType: BlockType.HAT
+                    opcode: 'whenGesture',
+                    text: formatMessage({
+                        id: 'microbit.whenGesture',
+                        default: 'when [GESTURE]',
+                        description: 'when the selected gesture is detected by the micro:bit'
+                    }),
+                    blockType: BlockType.HAT,
+                    arguments: {
+                        GESTURE: {
+                            type: ArgumentType.STRING,
+                            menu: 'gestures',
+                            defaultValue: Gestures.MOVED
+                        }
+                    }
                 },
+                '---',
                 {
-                    opcode: 'whenJumped',
-                    text: 'when jumped',
-                    blockType: BlockType.HAT
+                    opcode: 'displaySymbol',
+                    text: formatMessage({
+                        id: 'microbit.displaySymbol',
+                        default: 'display [MATRIX]',
+                        description: 'display a pattern on the micro:bit display'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MATRIX: {
+                            type: ArgumentType.MATRIX,
+                            defaultValue: '0101010101100010101000100'
+                        }
+                    }
                 },
                 {
                     opcode: 'displayText',
-                    text: 'display [TEXT]',
+                    text: formatMessage({
+                        id: 'microbit.displayText',
+                        default: 'display [TEXT]',
+                        description: 'display text on the micro:bit display'
+                    }),
                     blockType: BlockType.COMMAND,
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'Hello!'
-                        }
-                    }
-                },
-                {
-                    opcode: 'displaySymbol',
-                    text: 'display [SYMBOL]',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        SYMBOL: {
-                            type: ArgumentType.STRING,
-                            menu: 'symbols',
-                            defaultValue: '❤'
-                        }
-                    }
-                },
-                {
-                    opcode: 'displayMatrix',
-                    text: 'set light x:[X] y:[Y] [STATE]',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        X: {
-                            type: ArgumentType.STRING,
-                            menu: 'rowcol',
-                            defaultValue: '1'
-                        },
-                        Y: {
-                            type: ArgumentType.STRING,
-                            menu: 'rowcol',
-                            defaultValue: '1'
-                        },
-                        STATE: {
-                            type: ArgumentType.STRING,
-                            menu: 'pinState',
-                            defaultValue: 'on'
+                            defaultValue: formatMessage({
+                                id: 'microbit.defaultTextToDisplay',
+                                default: 'Hello!',
+                                description: `default text to display.
+                                IMPORTANT - the micro:bit only supports letters a-z, A-Z.
+                                Please substitute a default word in your language
+                                that can be written with those characters,
+                                substitute non-accented characters or leave it as "Hello!".
+                                Check the micro:bit site documentation for details`
+                            })
                         }
                     }
                 },
                 {
                     opcode: 'displayClear',
-                    text: 'set all lights off',
+                    text: formatMessage({
+                        id: 'microbit.clearDisplay',
+                        default: 'clear display',
+                        description: 'display nothing on the micro:bit display'
+                    }),
                     blockType: BlockType.COMMAND
                 },
+                '---',
                 {
                     opcode: 'whenTilted',
-                    text: 'when tilted [DIRECTION]',
+                    text: formatMessage({
+                        id: 'microbit.whenTilted',
+                        default: 'when tilted [DIRECTION]',
+                        description: 'when the micro:bit is tilted in a direction'
+                    }),
                     blockType: BlockType.HAT,
                     arguments: {
                         DIRECTION: {
@@ -423,7 +658,11 @@ class Scratch3MicroBitBlocks {
                 },
                 {
                     opcode: 'isTilted',
-                    text: 'tilted [DIRECTION]?',
+                    text: formatMessage({
+                        id: 'microbit.isTilted',
+                        default: 'tilted [DIRECTION]?',
+                        description: 'is the micro:bit is tilted in a direction?'
+                    }),
                     blockType: BlockType.BOOLEAN,
                     arguments: {
                         DIRECTION: {
@@ -435,7 +674,11 @@ class Scratch3MicroBitBlocks {
                 },
                 {
                     opcode: 'getTiltAngle',
-                    text: 'tilt angle [DIRECTION]',
+                    text: formatMessage({
+                        id: 'microbit.tiltAngle',
+                        default: 'tilt angle [DIRECTION]',
+                        description: 'how much the micro:bit is tilted in a direction'
+                    }),
                     blockType: BlockType.REPORTER,
                     arguments: {
                         DIRECTION: {
@@ -445,9 +688,15 @@ class Scratch3MicroBitBlocks {
                         }
                     }
                 },
+                '---',
                 {
                     opcode: 'whenPinConnected',
-                    text: 'when pin [PIN] connected',
+                    text: formatMessage({
+                        id: 'microbit.whenPinConnected',
+                        default: 'when pin [PIN] connected test',
+                        description: 'when the pin detects a connection to Earth/Ground'
+
+                    }),
                     blockType: BlockType.HAT,
                     arguments: {
                         PIN: {
@@ -459,15 +708,11 @@ class Scratch3MicroBitBlocks {
                 }
             ],
             menus: {
-                buttons: ['A', 'B', 'any'],
-                rowcol: ['1', '2', '3', '4', '5'],
-                pinState: ['on', 'off'],
-                symbols: Object.keys(symbols2hex),
-                tiltDirection: [TiltDirection.FRONT, TiltDirection.BACK, TiltDirection.LEFT, TiltDirection.RIGHT],
-                tiltDirectionAny: [
-                    TiltDirection.FRONT, TiltDirection.BACK, TiltDirection.LEFT,
-                    TiltDirection.RIGHT, TiltDirection.ANY
-                ],
+                buttons: this.BUTTONS_MENU,
+                gestures: this.GESTURES_MENU,
+                pinState: this.PIN_STATE_MENU,
+                tiltDirection: this.TILT_DIRECTION_MENU,
+                tiltDirectionAny: this.TILT_DIRECTION_ANY_MENU,
                 touchPins: ['0', '1', '2']
             }
         };
@@ -490,79 +735,98 @@ class Scratch3MicroBitBlocks {
     }
 
     /**
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {boolean} - true if the button is pressed.
+     */
+    isButtonPressed (args) {
+        if (args.BTN === 'any') {
+            return this._device.buttonA | this._device.buttonB;
+        } else if (args.BTN === 'A') {
+            return this._device.buttonA;
+        } else if (args.BTN === 'B') {
+            return this._device.buttonB;
+        }
+        return false;
+    }
+
+    /**
      * Test whether the micro:bit is moving
+     * @param {object} args - the block's arguments.
      * @return {boolean} - true if the micro:bit is moving.
      */
-    whenMoved () {
-        return (this._device.gestureState >> 2) & 1;
-    }
-
-    /**
-     * Test whether the micro:bit is shaken
-     * @return {boolean} - true if the micro:bit is shaken.
-     */
-    whenShaken () {
-        return this._device.gestureState & 1;
-    }
-
-    /**
-     * Test whether the micro:bit is free falling
-     * @return {boolean} - true if the micro:bit is free falling.
-     */
-    whenJumped () {
-        return (this._device.gestureState >> 1) & 1;
-    }
-
-    /**
-     * Display text on the 5x5 LED matrix.
-     * @param {object} args - the block's arguments.
-     * Note the limit is 19 characters
-     */
-    displayText (args) {
-        const text = String(args.TEXT).substring(0, 19);
-        this._device.displayText(text);
-        return;
+    whenGesture (args) {
+        const gesture = cast.toString(args.GESTURE);
+        if (gesture === 'moved') {
+            return (this._device.gestureState >> 2) & 1;
+        } else if (gesture === 'shaken') {
+            return this._device.gestureState & 1;
+        } else if (gesture === 'jumped') {
+            return (this._device.gestureState >> 1) & 1;
+        }
+        return false;
     }
 
     /**
      * Display a predefined symbol on the 5x5 LED matrix.
      * @param {object} args - the block's arguments.
+     * @return {Promise} - a Promise that resolves after a tick.
      */
     displaySymbol (args) {
-        const hex = symbols2hex[args.SYMBOL];
-        if (!hex) return;
-        this._device.ledMatrixState[0] = (hex >> 20) & 0x1F;
-        this._device.ledMatrixState[1] = (hex >> 15) & 0x1F;
-        this._device.ledMatrixState[2] = (hex >> 10) & 0x1F;
-        this._device.ledMatrixState[3] = (hex >> 5) & 0x1F;
-        this._device.ledMatrixState[4] = hex & 0x1F;
-        this._device.displayMatrix(this._device.ledMatrixState);
-        return;
+        const symbol = cast.toString(args.MATRIX);
+        const reducer = (accumulator, c, index) => {
+            const value = (c === '0') ? accumulator : accumulator + Math.pow(2, index);
+            return value;
+        };
+        const hex = symbol.split('').reduce(reducer, 0);
+        if (hex !== null) {
+            this._device.ledMatrixState[0] = hex & 0x1F;
+            this._device.ledMatrixState[1] = (hex >> 5) & 0x1F;
+            this._device.ledMatrixState[2] = (hex >> 10) & 0x1F;
+            this._device.ledMatrixState[3] = (hex >> 15) & 0x1F;
+            this._device.ledMatrixState[4] = (hex >> 20) & 0x1F;
+            this._device.displayMatrix(this._device.ledMatrixState);
+        }
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, BLESendInterval);
+        });
     }
 
     /**
-     * Control individual LEDs on the 5x5 matrix.
+     * Display text on the 5x5 LED matrix.
      * @param {object} args - the block's arguments.
+     * @return {Promise} - a Promise that resolves after a tick.
+     * Note the limit is 19 characters
      */
-    displayMatrix (args) {
-        if (args.STATE === 'on') {
-            this._device.ledMatrixState[args.Y - 1] |= 1 << 5 - args.X;
-        } else if (args.STATE === 'off') {
-            this._device.ledMatrixState[args.Y - 1] &= ~(1 << 5 - args.X);
-        } else return;
-        this._device.displayMatrix(this._device.ledMatrixState);
-        return;
+    displayText (args) {
+        const text = String(args.TEXT).substring(0, 19);
+        if (text.length > 0) this._device.displayText(text);
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, BLESendInterval);
+        });
     }
 
     /**
      * Turn all 5x5 matrix LEDs off.
+     * @return {Promise} - a Promise that resolves after a tick.
      */
     displayClear () {
         for (let i = 0; i < 5; i++) {
             this._device.ledMatrixState[i] = 0;
         }
         this._device.displayMatrix(this._device.ledMatrixState);
-        return;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, BLESendInterval);
+        });
     }
 
     /**
@@ -603,11 +867,11 @@ class Scratch3MicroBitBlocks {
      */
     _isTilted (direction) {
         switch (direction) {
-        case TiltDirection.ANY:
-            return (Math.abs(this._device.tiltX / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD) ||
-                (Math.abs(this._device.tiltY / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD);
-        default:
-            return this._getTiltAngle(direction) >= Scratch3MicroBitBlocks.TILT_THRESHOLD;
+            case TiltDirection.ANY:
+                return (Math.abs(this._device.tiltX / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD) ||
+                    (Math.abs(this._device.tiltY / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD);
+            default:
+                return this._getTiltAngle(direction) >= Scratch3MicroBitBlocks.TILT_THRESHOLD;
         }
     }
 
@@ -619,16 +883,16 @@ class Scratch3MicroBitBlocks {
      */
     _getTiltAngle (direction) {
         switch (direction) {
-        case TiltDirection.FRONT:
-            return Math.round(this._device.tiltY / -10);
-        case TiltDirection.BACK:
-            return Math.round(this._device.tiltY / 10);
-        case TiltDirection.LEFT:
-            return Math.round(this._device.tiltX / -10);
-        case TiltDirection.RIGHT:
-            return Math.round(this._device.tiltX / 10);
-        default:
-            log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
+            case TiltDirection.FRONT:
+                return Math.round(this._device.tiltY / -10);
+            case TiltDirection.BACK:
+                return Math.round(this._device.tiltY / 10);
+            case TiltDirection.LEFT:
+                return Math.round(this._device.tiltX / -10);
+            case TiltDirection.RIGHT:
+                return Math.round(this._device.tiltX / 10);
+            default:
+                log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
         }
     }
 

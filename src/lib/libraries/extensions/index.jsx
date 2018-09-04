@@ -11,6 +11,14 @@ import ev3Image from './ev3.png';
 import boostImage from './boost.png';
 import translateImage from './translate.png';
 
+import microbitDeviceImage from './device-connection/microbit/microbit-illustration.svg';
+import microbitMenuImage from './device-connection/microbit/microbit-small.svg';
+import ev3DeviceImage from './device-connection/ev3/ev3-hub-illustration.svg';
+import ev3MenuImage from './device-connection/ev3/ev3-small.svg';
+import wedoDeviceImage from './device-connection/wedo/wedo-illustration.svg';
+import wedoMenuImage from './device-connection/wedo/wedo-small.svg';
+import wedoButtonImage from './device-connection/wedo/wedo-button-illustration.svg';
+
 export default [
     {
         name: (
@@ -109,18 +117,30 @@ export default [
         disabled: true
     },
     {
-        name: 'Micro:bit',
+        name: 'micro:bit',
         extensionId: 'microbit',
         iconURL: microbitImage,
         description: (
             <FormattedMessage
-                defaultMessage="Connect your projects with the physical world."
-                description="Description for the 'Micro:bit' extension"
+                defaultMessage="Connect your projects with the world."
+                description="Description for the 'micro:bit' extension"
                 id="gui.extension.microbit.description"
             />
         ),
         featured: true,
-        disabled: true
+        disabled: false,
+        launchDeviceConnectionFlow: true,
+        useAutoScan: false,
+        deviceImage: microbitDeviceImage,
+        smallDeviceImage: microbitMenuImage,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their micro:bit."
+                id="gui.extension.microbit.connectingMessage"
+            />
+        ),
+        helpLink: 'https://scratch.mit.edu/microbit'
     },
     {
         name: 'LEGO WeDo 2.0',
@@ -134,7 +154,21 @@ export default [
             />
         ),
         featured: true,
-        disabled: true
+        disabled: false,
+        launchDeviceConnectionFlow: true,
+        useAutoScan: false,
+        deviceImage: wedoDeviceImage,
+        smallDeviceImage: wedoMenuImage,
+        deviceButtonImage: wedoButtonImage,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their WeDo."
+                id="gui.extension.wedo2.connectingMessage"
+            />
+        ),
+        helpLink: 'https://scratch.mit.edu/wedo'
+
     },
     {
         name: 'LEGO MINDSTORMS EV3',
@@ -148,7 +182,19 @@ export default [
             />
         ),
         featured: true,
-        disabled: true
+        disabled: false,
+        launchDeviceConnectionFlow: true,
+        useAutoScan: false,
+        deviceImage: ev3DeviceImage,
+        smallDeviceImage: ev3MenuImage,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting. Make sure the pin on your EV3 is set to 1234."
+                description="Message to help people connect to their EV3. Must note the PIN should be 1234."
+                id="gui.extension.ev3.connectingMessage"
+            />
+        ),
+        helpLink: 'https://scratch.mit.edu/ev3'
     },
     {
         name: 'LEGO Boost',

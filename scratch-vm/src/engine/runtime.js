@@ -256,7 +256,7 @@ class Runtime extends EventEmitter {
             mouseWheel: new MouseWheel(this),
             video: new Video(this)
         };
-
+        this.extensionDevices = {};
         /**
          * A runtime profiler that records timed events for later playback to
          * diagnose Scratch performance.
@@ -264,7 +264,6 @@ class Runtime extends EventEmitter {
          */
         this.profiler = null;
     }
-
     /**
      * Width of the stage, in pixels.
      * @const {number}
@@ -871,7 +870,32 @@ class Runtime extends EventEmitter {
         return this._blockInfo.reduce(
             (result, categoryInfo) => result.concat(categoryInfo.blocks.map(blockInfo => blockInfo.json)), []);
     }
+    registerExtensionDevice (extensionId, device) {
+        this.extensionDevices[extensionId] = device;
+    }
 
+    startDeviceScan (extensionId) {
+        if (this.extensionDevices[extensionId]) {
+            this.extensionDevices[extensionId].startDeviceScan();
+        }
+    }
+    connectToPeripheral (extensionId, peripheralId) {
+        if (this.extensionDevices[extensionId]) {
+            this.extensionDevices[extensionId].connectDevice(peripheralId);
+        }
+    }
+    disconnectExtensionSession (extensionId) {
+        if (this.extensionDevices[extensionId]) {
+            this.extensionDevices[extensionId].disconnectSession();
+        }
+    }
+    getPeripheralIsConnected (extensionId) {
+        let isConnected = false;
+        if (this.extensionDevices[extensionId]) {
+            isConnected = this.extensionDevices[extensionId].getPeripheralIsConnected();
+        }
+        return isConnected;
+    }
     /**
      * Retrieve the function associated with the given opcode.
      * @param {!string} opcode The opcode to look up.

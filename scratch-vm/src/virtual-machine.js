@@ -106,6 +106,19 @@ class VirtualMachine extends EventEmitter {
             this.emit(Runtime.BLOCKSINFO_UPDATE, blocksInfo);
         });
 
+        this.runtime.on(Runtime.PERIPHERAL_LIST_UPDATE, info => {
+            this.emit(Runtime.PERIPHERAL_LIST_UPDATE, info);
+        });
+        this.runtime.on(Runtime.PERIPHERAL_CONNECTED, () =>
+            this.emit(Runtime.PERIPHERAL_CONNECTED)
+        );
+        this.runtime.on(Runtime.PERIPHERAL_ERROR, () =>
+            this.emit(Runtime.PERIPHERAL_ERROR)
+        );
+        this.runtime.on(Runtime.PERIPHERAL_SCAN_TIMEOUT, () =>
+            this.emit(Runtime.PERIPHERAL_SCAN_TIMEOUT)
+        );
+
         this.extensionManager = new ExtensionManager(this.runtime);
 
         this.blockListener = this.blockListener.bind(this);
@@ -135,6 +148,11 @@ class VirtualMachine extends EventEmitter {
      */
     setTurboMode (turboModeOn) {
         this.runtime.turboMode = !!turboModeOn;
+        if (this.runtime.turboMode) {
+            this.emit(Runtime.TURBO_MODE_ON);
+        } else {
+            this.emit(Runtime.TURBO_MODE_OFF);
+        }
     }
 
     /**
@@ -195,6 +213,22 @@ class VirtualMachine extends EventEmitter {
         this.runtime.ioDevices.video.setProvider(videoProvider);
     }
 
+    startDeviceScan (extensionId) {
+        this.runtime.startDeviceScan(extensionId);
+    }
+
+    connectToPeripheral (extensionId, peripheralId) {
+        this.runtime.connectToPeripheral(extensionId, peripheralId);
+    }
+
+    disconnectExtensionSession (extensionId) {
+        this.runtime.disconnectExtensionSession(extensionId);
+    }
+
+    getPeripheralIsConnected (extensionId) {
+        return this.runtime.getPeripheralIsConnected(extensionId);
+    }
+
     /**
      * Load a Scratch project from a .sb, .sb2, .sb3 or json string.
      * @param {string | object} input A json string, object, or ArrayBuffer representing the project to load.
@@ -202,7 +236,7 @@ class VirtualMachine extends EventEmitter {
      */
     loadProject (input) {
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-          !ArrayBuffer.isView(input)) {
+            !ArrayBuffer.isView(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
@@ -418,7 +452,7 @@ class VirtualMachine extends EventEmitter {
     addSprite (input) {
         const errorPrefix = 'Sprite Upload Error:';
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-          !ArrayBuffer.isView(input)) {
+            !ArrayBuffer.isView(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
@@ -494,15 +528,22 @@ class VirtualMachine extends EventEmitter {
      * @property {number} rotationCenterX - the X component of the costume's origin.
      * @property {number} rotationCenterY - the Y component of the costume's origin.
      * @property {number} [bitmapResolution] - the resolution scale for a bitmap costume.
+     * @param {string} optTargetId - the id of the target to add to, if not the editing target.
      * @returns {?Promise} - a promise that resolves when the costume has been added
      */
-    addCostume (md5ext, costumeObject) {
-        return loadCostume(md5ext, costumeObject, this.runtime).then(() => {
-            this.editingTarget.addCostume(costumeObject);
-            this.editingTarget.setCostume(
-                this.editingTarget.getCostumes().length - 1
-            );
-        });
+    addCostume (md5ext, costumeObject, optTargetId) {
+        const target = optTargetId ? this.runtime.getTargetById(optTargetId) :
+            this.editingTarget;
+        if (target) {
+            return loadCostume(md5ext, costumeObject, this.runtime).then(() => {
+                target.addCostume(costumeObject);
+                target.setCostume(
+                    target.getCostumes().length - 1
+                );
+            });
+        }
+        // If the target cannot be found by id, return a rejected promise
+        return new Promise.reject();
     }
 
     /**
@@ -548,21 +589,38 @@ class VirtualMachine extends EventEmitter {
     /**
      * Delete a costume from the current editing target.
      * @param {int} costumeIndex - the index of the costume to be removed.
+     * @return {?function} A function to restore the deleted costume, or null,
+     * if no costume was deleted.
      */
     deleteCostume (costumeIndex) {
-        this.editingTarget.deleteCostume(costumeIndex);
+        const deletedCostume = this.editingTarget.deleteCostume(costumeIndex);
+        if (deletedCostume) {
+            const target = this.editingTarget;
+            return () => {
+                target.addCostume(deletedCostume);
+                this.emitTargetsUpdate();
+            };
+        }
+        return null;
     }
 
     /**
      * Add a sound to the current editing target.
      * @param {!object} soundObject Object representing the costume.
+     * @param {string} optTargetId - the id of the target to add to, if not the editing target.
      * @returns {?Promise} - a promise that resolves when the sound has been decoded and added
      */
-    addSound (soundObject) {
-        return loadSound(soundObject, this.runtime, this.editingTarget.sprite).then(() => {
-            this.editingTarget.addSound(soundObject);
-            this.emitTargetsUpdate();
-        });
+    addSound (soundObject, optTargetId) {
+        const target = optTargetId ? this.runtime.getTargetById(optTargetId) :
+            this.editingTarget;
+        if (target) {
+            return loadSound(soundObject, this.runtime, target.sprite).then(() => {
+                target.addSound(soundObject);
+                this.emitTargetsUpdate();
+            });
+        }
+        // If the target cannot be found by id, return a rejected promise
+        return new Promise.reject();
     }
 
     /**
@@ -627,9 +685,20 @@ class VirtualMachine extends EventEmitter {
     /**
      * Delete a sound from the current editing target.
      * @param {int} soundIndex - the index of the sound to be removed.
+     * @return {?Function} A function to restore the sound that was deleted,
+     * or null, if no sound was deleted.
      */
     deleteSound (soundIndex) {
-        this.editingTarget.deleteSound(soundIndex);
+        const target = this.editingTarget;
+        const deletedSound = this.editingTarget.deleteSound(soundIndex);
+        if (deletedSound) {
+            const restoreFun = () => {
+                target.addSound(deletedSound);
+                this.emitTargetsUpdate();
+            };
+            return restoreFun;
+        }
+        return null;
     }
 
     /**
@@ -645,7 +714,7 @@ class VirtualMachine extends EventEmitter {
         if (format === this.runtime.storage.DataFormat.SVG) {
             return this.runtime.storage.get(id).decodeText();
         } else if (format === this.runtime.storage.DataFormat.PNG ||
-                format === this.runtime.storage.DataFormat.JPG) {
+            format === this.runtime.storage.DataFormat.JPG) {
             return this.runtime.storage.get(id).encodeDataURI();
         }
         log.error(`Unhandled format: ${this.runtime.storage.get(id).dataFormat}`);
@@ -788,6 +857,7 @@ class VirtualMachine extends EventEmitter {
     /**
      * Delete a sprite and all its clones.
      * @param {string} targetId ID of a target whose sprite to delete.
+     * @return {Function} Returns a function to restore the sprite that was deleted
      */
     deleteSprite (targetId) {
         const target = this.runtime.getTargetById(targetId);
@@ -801,7 +871,16 @@ class VirtualMachine extends EventEmitter {
             if (!sprite) {
                 throw new Error('No sprite associated with this target.');
             }
+            const spritePromise = this.exportSprite(targetId, 'uint8array');
+            const restoreSprite = () => spritePromise.then(spriteBuffer => this.addSprite(spriteBuffer));
+            // Remove monitors from the runtime state and remove the
+            // target-specific monitored blocks (e.g. local variables)
             this.runtime.requestRemoveMonitorByTargetId(targetId);
+            const targetSpecificMonitorBlockIds = Object.keys(this.runtime.monitorBlocks._blocks)
+                .filter(key => this.runtime.monitorBlocks._blocks[key].targetId === targetId);
+            for (const blockId of targetSpecificMonitorBlockIds) {
+                this.runtime.monitorBlocks.deleteBlock(blockId);
+            }
             const currentEditingTarget = this.editingTarget;
             for (let i = 0; i < sprite.clones.length; i++) {
                 const clone = sprite.clones[i];
@@ -819,9 +898,10 @@ class VirtualMachine extends EventEmitter {
             }
             // Sprite object should be deleted by GC.
             this.emitTargetsUpdate();
-        } else {
-            throw new Error('No target with the provided id.');
+            return restoreSprite;
         }
+
+        throw new Error('No target with the provided id.');
     }
 
     /**
@@ -870,6 +950,15 @@ class VirtualMachine extends EventEmitter {
     }
 
     /**
+     * Set the bitmap adapter for the VM/runtime, which converts scratch 2
+     * bitmaps to scratch 3 bitmaps. (Scratch 3 bitmaps are all bitmap resolution 2)
+     * @param {!function} bitmapAdapter The adapter to attach
+     */
+    attachV2BitmapAdapter (bitmapAdapter) {
+        this.runtime.attachV2BitmapAdapter(bitmapAdapter);
+    }
+
+    /**
      * Set the storage module for the VM/runtime
      * @param {!ScratchStorage} storage The storage module to attach
      */
@@ -879,14 +968,25 @@ class VirtualMachine extends EventEmitter {
 
     /**
      * set the current locale and builtin messages for the VM
-     * @param {[type]} locale       current locale
-     * @param {[type]} messages     builtin messages map for current locale
+     * @param {!string} locale       current locale
+     * @param {!object} messages     builtin messages map for current locale
+     * @returns {Promise} Promise that resolves when all the blocks have been
+     *     updated for a new locale (or empty if locale hasn't changed.)
      */
     setLocale (locale, messages) {
-        if (locale !== formatMessage.setup().locale) {
-            formatMessage.setup({locale: locale, translations: {[locale]: messages}});
-            this.extensionManager.refreshBlocks();
+        if (locale === formatMessage.setup().locale) {
+            return Promise.resolve();
         }
+        formatMessage.setup({locale: locale, translations: {[locale]: messages}});
+        return this.extensionManager.refreshBlocks();
+    }
+
+    /**
+     * get the current locale for the VM
+     * @returns {string} the current locale in the VM
+     */
+    getLocale () {
+        return formatMessage.setup().locale;
     }
 
     /**
@@ -960,11 +1060,22 @@ class VirtualMachine extends EventEmitter {
      * workspace of the given target.
      * @param {!Array<object>} blocks Blocks to add.
      * @param {!string} targetId Id of target to add blocks to.
+     * @param {?string} optFromTargetId Optional target id indicating that blocks are being
+     * shared from that target. This is needed for resolving any potential variable conflicts.
      */
-    shareBlocksToTarget (blocks, targetId) {
+    shareBlocksToTarget (blocks, targetId, optFromTargetId) {
+        const copiedBlocks = JSON.parse(JSON.stringify(blocks));
         const target = this.runtime.getTargetById(targetId);
-        for (let i = 0; i < blocks.length; i++) {
-            target.blocks.createBlock(blocks[i]);
+
+        if (optFromTargetId) {
+            // If the blocks are being shared from another target,
+            // resolve any possible variable conflicts that may arise.
+            const fromTarget = this.runtime.getTargetById(optFromTargetId);
+            fromTarget.resolveVariableSharingConflictsWithTarget(copiedBlocks, target);
+        }
+
+        for (let i = 0; i < copiedBlocks.length; i++) {
+            target.blocks.createBlock(copiedBlocks[i]);
         }
         target.blocks.updateTargetSpecificBlocks(target.isStage);
     }
@@ -1074,19 +1185,21 @@ class VirtualMachine extends EventEmitter {
             const id = messageIds[i];
             delete this.runtime.getTargetForStage().variables[id];
         }
-        const variableMap = Object.assign({},
-            this.runtime.getTargetForStage().variables,
-            this.editingTarget.variables
-        );
+        const globalVarMap = Object.assign({}, this.runtime.getTargetForStage().variables);
+        const localVarMap = this.editingTarget.isStage ?
+            Object.create(null) :
+            Object.assign({}, this.editingTarget.variables);
 
-        const variables = Object.keys(variableMap).map(k => variableMap[k]);
+        const globalVariables = Object.keys(globalVarMap).map(k => globalVarMap[k]);
+        const localVariables = Object.keys(localVarMap).map(k => localVarMap[k]);
         const workspaceComments = Object.keys(this.editingTarget.comments)
             .map(k => this.editingTarget.comments[k])
             .filter(c => c.blockId === null);
 
         const xmlString = `<xml xmlns="http://www.w3.org/1999/xhtml">
                             <variables>
-                                ${variables.map(v => v.toXML()).join()}
+                                ${globalVariables.map(v => v.toXML()).join()}
+                                ${localVariables.map(v => v.toXML(true)).join()}
                             </variables>
                             ${workspaceComments.map(c => c.toXML()).join()}
                             ${this.editingTarget.blocks.toXML(this.editingTarget.comments)}
