@@ -53,7 +53,7 @@ class ConnectionModal extends React.Component {
     handleCancel () {
         // If we're not connected to a device, close the websocket so we stop scanning.
         if (!this.props.vm.getPeripheralIsConnected(this.props.extensionId)) {
-            this.props.vm.disconnectExtensionSession(this.props.extensionId);
+            this.props.vm.disconnectExtensionSession(this.props.extensionId);//disconnectPeripheral
         }
         this.props.onCancel();
     }

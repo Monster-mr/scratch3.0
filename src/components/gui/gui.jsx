@@ -30,6 +30,7 @@ import ImportModal from '../../containers/import-modal.jsx';
 import WebGlModal from '../../containers/webgl-modal.jsx';
 import TipsLibrary from '../../containers/tips-library.jsx';
 import Cards from '../../containers/cards.jsx';
+import ExampleLibrary from '../../containers/example-library.jsx';
 import DragLayer from '../../containers/drag-layer.jsx';
 
 import layout, {STAGE_SIZE_MODES} from '../../lib/layout-constants';
@@ -70,6 +71,7 @@ const GUIComponent = props => {
         importInfoVisible,
         intl,
         isPlayerOnly,
+        isRtl,
         loading,
         onExtensionButtonClick,
         onActivateCostumesTab,
@@ -78,7 +80,7 @@ const GUIComponent = props => {
         onRequestCloseBackdropLibrary,
         onRequestCloseCostumeLibrary,
         onSeeCommunity,
-        // previewInfoVisible,
+         //previewInfoVisible,
         targetIsStage,
         // consoleMsg,
         // code,
@@ -86,6 +88,7 @@ const GUIComponent = props => {
         soundsTabVisible,
         stageSizeMode,
         tipsLibraryVisible,
+        exampleLibraryVisible,
         vm,
         // kb,
         // showArduinoPanel,
@@ -132,11 +135,12 @@ const GUIComponent = props => {
         ) : (
             <Box
                 className={styles.pageWrapper}
+                dir={isRtl ? 'rtl' : 'ltr'}
                 {...componentProps}
             >
-                {/*{previewInfoVisible ? (*/}
-                    {/*<PreviewModal />*/}
-                {/*) : null}*/}
+                {/*{previewInfoVisible ? (
+                    <PreviewModal />
+                ) : null}*/}
                 {loading ? (
                     <Loader />
                 ) : null}
@@ -158,11 +162,14 @@ const GUIComponent = props => {
                 ): null}
 
                 {isRendererSupported ? null : (
-                    <WebGlModal />
+                    <WebGlModal isRtl={isRtl} />
                 )}
                 {tipsLibraryVisible ? (
                     <TipsLibrary />
                 ) : null}
+                {exampleLibraryVisible?(
+                    <ExampleLibrary/>
+                ):null}
                 {cardsVisible ? (
                     <Cards />
                 ) : null}
@@ -179,6 +186,9 @@ const GUIComponent = props => {
                     />
                 ) : null}
                 <MenuBar
+                    handleRestoreOption={props.handleRestoreOption}  //恢复
+                    restoreOptionMessage={props.restoreOptionMessage}//恢复
+                    handleCloseFileMenuAndThen={props.handleCloseFileMenuAndThen}
                     enableCommunity={enableCommunity}
                     onSeeCommunity={onSeeCommunity}
                     toggleArduinoPanel={toggleArduinoPanel}
@@ -324,6 +334,7 @@ GUIComponent.propTypes = {
     importInfoVisible: PropTypes.bool,
     intl: intlShape.isRequired,
     isPlayerOnly: PropTypes.bool,
+    isRtl: PropTypes.bool,
     loading: PropTypes.bool,
     onActivateCostumesTab: PropTypes.func,
     onActivateSoundsTab: PropTypes.func,
@@ -338,6 +349,7 @@ GUIComponent.propTypes = {
     stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES)),
     targetIsStage: PropTypes.bool,
     tipsLibraryVisible: PropTypes.bool,
+    exampleLibraryVisible:PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired
 };
 GUIComponent.defaultProps = {

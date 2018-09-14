@@ -7,23 +7,8 @@
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: nowrap;
-
-    /*
-        For most things, we shouldn't explicitly set height, and let the
-        content push the element to whatever fits. Using a fixed height
-        instead, will help us subtract the value we assign from the body,
-        adding up to a perfect 100%. This means we don't need to set
-        overflow: hidden, which makes it hard to debug. border-box
-        simplifies by all of this by removing padding from the equation.
-    */
     box-sizing: border-box;
     height: 3rem;
-
-    /*
-        @todo: This adds ~20px in Chrome, when scrolling to the right,
-        but fixes [FFx + Safari] [resize window down + scroll to the right] bug.
-        width: 100%;
-    */
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: .75rem;
     font-weight: bold;
@@ -36,9 +21,35 @@
     flex-direction: row;
     justify-content: flex-start;
     flex-wrap: nowrap;
-    align-items: center;
+    align-items: left;
+    position: absolute;
+    width: 40%;
+    left: 0;
+    height: 3rem;
 }
-.main-menu .menu-bar-item {
+.menufoot{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    align-items: right;
+    position: absolute;
+    width: 40%;
+    height: 3rem;
+    left: 60%;
+}
+.inputvalue{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    align-items: center;
+    position: absolute;
+    width: 19%;
+    height: 3rem;
+    left: 40%;
+}
+.main-menu .menu-bar-item,.inputvalue .menu-bar-item,.menufoot .menu-bar-item {
     padding: 0 0.75rem;
 }
 .scratch-logo {
@@ -54,7 +65,6 @@
 }
 .language-menu {
     display: inline-flex;
-    /*width: $language-selector-width;*/
     width:4rem;
 }
 .menu {
@@ -89,8 +99,6 @@
     display: block;
     height: 35px;
     line-height: 35px;
-    position: absolute;
-    left: -100px;
 }
 /*
 .file-group {
@@ -98,26 +106,24 @@
     flex-direction: row;
     align-items: center;
 }
-
 .file-group .menu-bar-item {
     padding: 0 0.75rem;
 }*/
 
+/*意见反馈*/
 .feedback-link {
     color:  hsla(215, 100%, 65%, 1);
     text-decoration: none;
 }
-
 .feedback-button {
     background-color: hsla(0, 100%, 100%, 1);
     height: 34px;
 }
-
-.divider {
+/*.divider {     //分割线
     margin: 0 .5rem;
     height: 34px;
     display: none;
-}
+}*/
 
 .title-field {
 /*    border: 1px dashed hsla(0, 0%, 0%, 0.15);*/
@@ -128,14 +134,26 @@
     padding: .5rem;
     color: #fff;
 }
-
-.title-field,
 .title-field::placeholder {
     color: hsla(0, 100%, 100%, 1);
     font-weight: bold;
     font-size: .8rem;
+    font-style: italic;
 }
-
+.title-field:hover {
+    background-color: hsla(0, 100%, 100%, 0.5);
+}
+.disabled {  /*恢复*/
+    opacity: 0.5;
+}
+.title-field:focus {
+    outline:none;
+    border: 1px solid $ui-transparent;
+    -webkit-box-shadow: 0 0 0 calc($space * .5) $ui-white-transparent;
+    box-shadow: 0 0 0 calc($space * .5) $ui-white-transparent;
+    background-color: $ui-white;
+    color: $text-primary;
+}
 .share-button {
     background: hsla(30, 100%, 55%, 1);
     height: 32px;
@@ -153,12 +171,13 @@
 .coming-soon >:not(.coming-soon-tooltip) {
     opacity: 0.5;
 }
-
-.account-info-wrapper {
+.menufoot .account-info-wrapper {
     display: flex;
     flex-direction: row;
     padding: 0 .5rem;
     align-items: center;
+    position: relative;
+    margin-left: 10px;
 }
 .mystuff-icon {
     margin: 0 .25rem;

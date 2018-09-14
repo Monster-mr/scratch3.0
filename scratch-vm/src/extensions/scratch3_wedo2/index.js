@@ -7,6 +7,7 @@ const log = require('../../util/log');
 const BLESession = require('../../io/bleSession');
 const Base64Util = require('../../util/base64-util');
 const MathUtil = require('../../util/math-util');
+const RateLimiter = require('../../util/rateLimiter.js');
 
 /**
  * Icon svg to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -29,6 +30,12 @@ const UUID = {
  * @type {number}
  */
 const BLESendInterval = 100;
+
+/**
+ * A maximum number of BLE message sends per second, to be enforced by the rate limiter.
+ * @type {number}
+ */
+const BLESendRateMax = 20;
 
 /**
  * Enum for WeDo2 sensor and output types.
@@ -260,15 +267,16 @@ class WeDo2Motor {
 
     /**
      * Turn this motor off.
+     * @param {boolean} [useLimiter=true] - if true, use the rate limiter
      */
-    setMotorOff () {
+    setMotorOff (useLimiter = true) {
         const cmd = new Uint8Array(4);
         cmd[0] = this._index + 1; // connect id
         cmd[1] = WeDo2Commands.MOTOR_POWER; // command
         cmd[2] = 1; // 1 byte to follow
         cmd[3] = 0; // power in range 0-100
 
-        this._parent._send(UUID.OUTPUT_COMMAND, Base64Util.uint8ArrayToBase64(cmd));
+        this._parent._send(UUID.OUTPUT_COMMAND, Base64Util.uint8ArrayToBase64(cmd), useLimiter);
 
         this._isOn = false;
     }
@@ -347,19 +355,6 @@ class WeDo2 {
         };
 
         /**
-         * A flag that is true while we are busy sendng data to the BLE session.
-         * @type {boolean}
-         * @private
-         */
-        this._sending = false;
-
-        /**
-         * ID for a timeout which is used to clear the sending flag if it has been
-         * true for a long time.
-         */
-        this._sendingTimeoutID = null;
-
-        /**
          * The Bluetooth connection session for reading/writing device data.
          * @type {BLESession}
          * @private
@@ -369,6 +364,14 @@ class WeDo2 {
 
         this._onConnect = this._onConnect.bind(this);
         this._onMessage = this._onMessage.bind(this);
+
+        /**
+         * A rate limiter utility, to help limit the rate at which we send BLE messages
+         * over the socket to Scratch Link to a maximum number of sends per second.
+         * @type {RateLimiter}
+         * @private
+         */
+        this._rateLimiter = new RateLimiter(BLESendRateMax);
     }
 
     /**
@@ -406,8 +409,11 @@ class WeDo2 {
      */
     stopAllMotors () {
         this._motors.forEach(motor => {
-            if (motor && motor.isOn) {
-                motor.setMotorOff();
+            if (motor) {
+                // Send the motor off command without using the rate limiter.
+                // This allows the stop button to stop motors even if we are
+                // otherwise flooded with commands.
+                motor.setMotorOff(false);
             }
         });
     }
@@ -473,7 +479,9 @@ class WeDo2 {
         cmd[0] = WeDo2ConnectIDs.PIEZO; // connect id
         cmd[1] = WeDo2Commands.STOP_TONE; // command
 
-        return this._send(UUID.OUTPUT_COMMAND, Base64Util.uint8ArrayToBase64(cmd));
+        // Send this command without using the rate limiter, because it is only triggered
+        // by the stop button.
+        return this._send(UUID.OUTPUT_COMMAND, Base64Util.uint8ArrayToBase64(cmd), false);
     }
 
     /**
@@ -545,24 +553,18 @@ class WeDo2 {
      * Write a message to the device BLE session.
      * @param {number} uuid - the UUID of the characteristic to write to
      * @param {Uint8Array} message - the message to write.
+     * @param {boolean} [useLimiter=true] - if true, use the rate limiter
      * @return {Promise} - a promise result of the write operation
      * @private
      */
-    _send (uuid, message) {
-        if (!this.getPeripheralIsConnected()) return;
-        if (this._sending) return;
+    _send (uuid, message, useLimiter = true) {
+        if (!this.getPeripheralIsConnected()) return Promise.resolve();
 
-        this._sending = true;
+        if (useLimiter) {
+            if (!this._rateLimiter.okayToSend()) return Promise.resolve();
+        }
 
-        this._sendingTimeoutID = window.setTimeout(() => {
-            this._sending = false;
-        }, 5000);
-
-        return this._ble.write(UUID.IO_SERVICE, uuid, message, 'base64')
-            .then(() => {
-                this._sending = false;
-                window.clearTimeout(this._sendingTimeoutID);
-            });
+        return this._ble.write(UUID.IO_SERVICE, uuid, message, 'base64');
     }
 
     /**
@@ -581,31 +583,31 @@ class WeDo2 {
          * If first byte of data is anything else, read incoming sensor value.
          */
         switch (data[0]) {
-            case 1:
-            case 2: {
-                const connectID = data[0];
-                if (data[1] === 0) {
-                    // clear sensor or motor
-                    this._clearPort(connectID);
-                } else {
-                    // register sensor or motor
-                    this._registerSensorOrMotor(connectID, data[3]);
-                }
-                break;
+        case 1:
+        case 2: {
+            const connectID = data[0];
+            if (data[1] === 0) {
+                // clear sensor or motor
+                this._clearPort(connectID);
+            } else {
+                // register sensor or motor
+                this._registerSensorOrMotor(connectID, data[3]);
             }
-            default: {
-                // read incoming sensor value
-                const connectID = data[1];
-                const type = this._ports[connectID - 1];
-                if (type === WeDo2Types.DISTANCE) {
-                    this._sensors.distance = data[2];
-                }
-                if (type === WeDo2Types.TILT) {
-                    this._sensors.tiltX = data[2];
-                    this._sensors.tiltY = data[3];
-                }
-                break;
+            break;
+        }
+        default: {
+            // read incoming sensor value
+            const connectID = data[1];
+            const type = this._ports[connectID - 1];
+            if (type === WeDo2Types.DISTANCE) {
+                this._sensors.distance = data[2];
             }
+            if (type === WeDo2Types.TILT) {
+                this._sensors.tiltX = data[2];
+                this._sensors.tiltY = data[3];
+            }
+            break;
+        }
         }
     }
 
@@ -1096,18 +1098,18 @@ class Scratch3WeDo2Blocks {
             const motor = this._device.motor(motorIndex);
             if (motor) {
                 switch (args.MOTOR_DIRECTION) {
-                    case MotorDirection.FORWARD:
-                        motor.direction = 1;
-                        break;
-                    case MotorDirection.BACKWARD:
-                        motor.direction = -1;
-                        break;
-                    case MotorDirection.REVERSE:
-                        motor.direction = -motor.direction;
-                        break;
-                    default:
-                        log.warn(`Unknown motor direction in setMotorDirection: ${args.DIRECTION}`);
-                        break;
+                case MotorDirection.FORWARD:
+                    motor.direction = 1;
+                    break;
+                case MotorDirection.BACKWARD:
+                    motor.direction = -1;
+                    break;
+                case MotorDirection.REVERSE:
+                    motor.direction = -motor.direction;
+                    break;
+                default:
+                    log.warn(`Unknown motor direction in setMotorDirection: ${args.DIRECTION}`);
+                    break;
                 }
                 // keep the motor on if it's running, and update the pending timeout if needed
                 if (motor.isOn) {
@@ -1182,15 +1184,15 @@ class Scratch3WeDo2Blocks {
      */
     whenDistance (args) {
         switch (args.OP) {
-            case '<':
-            case '&lt;':
-                return this._device.distance < Cast.toNumber(args.REFERENCE);
-            case '>':
-            case '&gt;':
-                return this._device.distance > Cast.toNumber(args.REFERENCE);
-            default:
-                log.warn(`Unknown comparison operator in whenDistance: ${args.OP}`);
-                return false;
+        case '<':
+        case '&lt;':
+            return this._device.distance < Cast.toNumber(args.REFERENCE);
+        case '>':
+        case '&gt;':
+            return this._device.distance > Cast.toNumber(args.REFERENCE);
+        default:
+            log.warn(`Unknown comparison operator in whenDistance: ${args.OP}`);
+            return false;
         }
     }
 
@@ -1239,11 +1241,11 @@ class Scratch3WeDo2Blocks {
      */
     _isTilted (direction) {
         switch (direction) {
-            case TiltDirection.ANY:
-                return (Math.abs(this._device.tiltX) >= Scratch3WeDo2Blocks.TILT_THRESHOLD) ||
-                    (Math.abs(this._device.tiltY) >= Scratch3WeDo2Blocks.TILT_THRESHOLD);
-            default:
-                return this._getTiltAngle(direction) >= Scratch3WeDo2Blocks.TILT_THRESHOLD;
+        case TiltDirection.ANY:
+            return (Math.abs(this._device.tiltX) >= Scratch3WeDo2Blocks.TILT_THRESHOLD) ||
+                (Math.abs(this._device.tiltY) >= Scratch3WeDo2Blocks.TILT_THRESHOLD);
+        default:
+            return this._getTiltAngle(direction) >= Scratch3WeDo2Blocks.TILT_THRESHOLD;
         }
     }
 
@@ -1255,16 +1257,16 @@ class Scratch3WeDo2Blocks {
      */
     _getTiltAngle (direction) {
         switch (direction) {
-            case TiltDirection.UP:
-                return this._device.tiltY > 45 ? 256 - this._device.tiltY : -this._device.tiltY;
-            case TiltDirection.DOWN:
-                return this._device.tiltY > 45 ? this._device.tiltY - 256 : this._device.tiltY;
-            case TiltDirection.LEFT:
-                return this._device.tiltX > 45 ? 256 - this._device.tiltX : -this._device.tiltX;
-            case TiltDirection.RIGHT:
-                return this._device.tiltX > 45 ? this._device.tiltX - 256 : this._device.tiltX;
-            default:
-                log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
+        case TiltDirection.UP:
+            return this._device.tiltY > 45 ? 256 - this._device.tiltY : -this._device.tiltY;
+        case TiltDirection.DOWN:
+            return this._device.tiltY > 45 ? this._device.tiltY - 256 : this._device.tiltY;
+        case TiltDirection.LEFT:
+            return this._device.tiltX > 45 ? 256 - this._device.tiltX : -this._device.tiltX;
+        case TiltDirection.RIGHT:
+            return this._device.tiltX > 45 ? this._device.tiltX - 256 : this._device.tiltX;
+        default:
+            log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
         }
     }
 
@@ -1277,20 +1279,20 @@ class Scratch3WeDo2Blocks {
     _forEachMotor (motorID, callback) {
         let motors;
         switch (motorID) {
-            case MotorID.A:
-                motors = [0];
-                break;
-            case MotorID.B:
-                motors = [1];
-                break;
-            case MotorID.ALL:
-            case MotorID.DEFAULT:
-                motors = [0, 1];
-                break;
-            default:
-                log.warn(`Invalid motor ID: ${motorID}`);
-                motors = [];
-                break;
+        case MotorID.A:
+            motors = [0];
+            break;
+        case MotorID.B:
+            motors = [1];
+            break;
+        case MotorID.ALL:
+        case MotorID.DEFAULT:
+            motors = [0, 1];
+            break;
+        default:
+            log.warn(`Invalid motor ID: ${motorID}`);
+            motors = [];
+            break;
         }
         for (const index of motors) {
             callback(index);

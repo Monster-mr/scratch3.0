@@ -42,11 +42,11 @@ class ProjectLoader extends React.Component {
     }
     handleChange (e) {
         // Remove the hash if any (without triggering a hash change event or a reload)
-        history.replaceState({}, document.title, '.');
+        history.replaceState({}, document.title, '.');  //获取到历史的东西,记录上次保存的位置
         const reader = new FileReader();
         const thisFileInput = e.target;
         reader.onload = () => this.props.vm.loadProject(reader.result)
-            .then(() => {
+            .then(() => {                               //.then是成功
                 analytics.event({
                     category: 'project',
                     action: 'Import Project File',
@@ -56,7 +56,7 @@ class ProjectLoader extends React.Component {
                 // Reset the file input after project is loaded
                 // This is necessary in case the user wants to reload a project
                 thisFileInput.value = null;
-            })
+            })                                         //.catch是失败
             .catch(error => {
                 this.setState({loadingError: true, errorMessage: error});
             });

@@ -37,6 +37,7 @@ class Variable {
         isLocal = (isLocal === true);
         return `<variable type="${this.type}" id="${this.id}" islocal="${isLocal}">${this.name}</variable>`;
     }
+
     /**
      * Type representation for scalar variables.
      * This is currently represented as ''

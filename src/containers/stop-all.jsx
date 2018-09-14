@@ -15,11 +15,11 @@ class StopAll extends React.Component {
         ]);
         this.state = {projectRunning: false};
     }
-    componentDidMount () {
+    componentDidMount () { //组件第一次渲染
         this.props.vm.addListener('PROJECT_RUN_START', this.onProjectRunStart);
         this.props.vm.addListener('PROJECT_RUN_STOP', this.onProjectRunStop);
     }
-    componentWillUnmount () {
+    componentWillUnmount () { //组件移除调用
         this.props.vm.removeListener('PROJECT_RUN_START', this.onProjectRunStart);
         this.props.vm.removeListener('PROJECT_RUN_STOP', this.onProjectRunStop);
     }

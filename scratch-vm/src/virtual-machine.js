@@ -236,7 +236,7 @@ class VirtualMachine extends EventEmitter {
      */
     loadProject (input) {
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-            !ArrayBuffer.isView(input)) {
+          !ArrayBuffer.isView(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
@@ -452,7 +452,7 @@ class VirtualMachine extends EventEmitter {
     addSprite (input) {
         const errorPrefix = 'Sprite Upload Error:';
         if (typeof input === 'object' && !(input instanceof ArrayBuffer) &&
-            !ArrayBuffer.isView(input)) {
+          !ArrayBuffer.isView(input)) {
             // If the input is an object and not any ArrayBuffer
             // or an ArrayBuffer view (this includes all typed arrays and DataViews)
             // turn the object into a JSON string, because we suspect
@@ -714,7 +714,7 @@ class VirtualMachine extends EventEmitter {
         if (format === this.runtime.storage.DataFormat.SVG) {
             return this.runtime.storage.get(id).decodeText();
         } else if (format === this.runtime.storage.DataFormat.PNG ||
-            format === this.runtime.storage.DataFormat.JPG) {
+                format === this.runtime.storage.DataFormat.JPG) {
             return this.runtime.storage.get(id).encodeDataURI();
         }
         log.error(`Unhandled format: ${this.runtime.storage.get(id).dataFormat}`);

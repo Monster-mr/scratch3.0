@@ -867,11 +867,11 @@ class Scratch3MicroBitBlocks {
      */
     _isTilted (direction) {
         switch (direction) {
-            case TiltDirection.ANY:
-                return (Math.abs(this._device.tiltX / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD) ||
-                    (Math.abs(this._device.tiltY / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD);
-            default:
-                return this._getTiltAngle(direction) >= Scratch3MicroBitBlocks.TILT_THRESHOLD;
+        case TiltDirection.ANY:
+            return (Math.abs(this._device.tiltX / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD) ||
+                (Math.abs(this._device.tiltY / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD);
+        default:
+            return this._getTiltAngle(direction) >= Scratch3MicroBitBlocks.TILT_THRESHOLD;
         }
     }
 
@@ -883,16 +883,16 @@ class Scratch3MicroBitBlocks {
      */
     _getTiltAngle (direction) {
         switch (direction) {
-            case TiltDirection.FRONT:
-                return Math.round(this._device.tiltY / -10);
-            case TiltDirection.BACK:
-                return Math.round(this._device.tiltY / 10);
-            case TiltDirection.LEFT:
-                return Math.round(this._device.tiltX / -10);
-            case TiltDirection.RIGHT:
-                return Math.round(this._device.tiltX / 10);
-            default:
-                log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
+        case TiltDirection.FRONT:
+            return Math.round(this._device.tiltY / -10);
+        case TiltDirection.BACK:
+            return Math.round(this._device.tiltY / 10);
+        case TiltDirection.LEFT:
+            return Math.round(this._device.tiltX / -10);
+        case TiltDirection.RIGHT:
+            return Math.round(this._device.tiltX / 10);
+        default:
+            log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
         }
     }
 

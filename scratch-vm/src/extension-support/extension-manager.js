@@ -252,12 +252,12 @@ class ExtensionManager {
             try {
                 let result;
                 switch (blockInfo) {
-                    case '---': // separator
-                        result = '---';
-                        break;
-                    default: // an ExtensionBlockMetadata object
-                        result = this._prepareBlockInfo(serviceName, blockInfo);
-                        break;
+                case '---': // separator
+                    result = '---';
+                    break;
+                default: // an ExtensionBlockMetadata object
+                    result = this._prepareBlockInfo(serviceName, blockInfo);
+                    break;
                 }
                 results.push(result);
             } catch (e) {

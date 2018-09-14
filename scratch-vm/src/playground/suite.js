@@ -577,29 +577,38 @@ window.onload = function () {
         recordingTime: 5000
     }));
 
-    suite.add(new BenchFixture({
-        projectId: 187694931,
-        warmUpTime: 0,
-        recordingTime: 5000
-    }));
+    // TODO: #1322
+    // Error: Cannot create monitor for target that cannot be found by name
+    // suite.add(new BenchFixture({
+    //     projectId: 187694931,
+    //     warmUpTime: 0,
+    //     recordingTime: 5000
+    // }));
+    //
+    // suite.add(new BenchFixture({
+    //     projectId: 187694931,
+    //     warmUpTime: 5000,
+    //     recordingTime: 5000
+    // }));
 
-    suite.add(new BenchFixture({
-        projectId: 187694931,
-        warmUpTime: 5000,
-        recordingTime: 5000
-    }));
+    const standard = projectId => {
+        suite.add(new BenchFixture({
+            projectId,
+            warmUpTime: 0,
+            recordingTime: 5000
+        }));
 
-    suite.add(new BenchFixture({
-        projectId: 219313833,
-        warmUpTime: 0,
-        recordingTime: 5000
-    }));
+        suite.add(new BenchFixture({
+            projectId,
+            warmUpTime: 5000,
+            recordingTime: 5000
+        }));
 
-    suite.add(new BenchFixture({
-        projectId: 219313833,
-        warmUpTime: 5000,
-        recordingTime: 5000
-    }));
+    };
+
+    standard(219313833); // sensing_touching benchmark
+    standard(236115215); // touching color benchmark
+    standard(238750909); // bob ross painting (heavy pen stamp)
 
     const frame = document.getElementsByTagName('iframe')[0];
     const runner = new BenchRunner({frame, suite});

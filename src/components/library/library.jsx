@@ -157,9 +157,14 @@ class LibraryComponent extends React.Component {
                     ref={this.setFilteredDataRef}
                 >
                     {this.getFilteredData().map((dataItem, index) => {
-                        const scratchURL = dataItem.md5 ?
-                            `https://cdn.assets.scratch.mit.edu/internalapi/asset/${dataItem.md5}/get/` :
-                            dataItem.rawURL;
+                        let scratchURL;
+                        if(dataItem.locationimage){
+                            scratchURL=dataItem.locationimage
+                        }else {
+                            scratchURL = dataItem.md5 ?
+                                `https://cdn.assets.scratch.mit.edu/internalapi/asset/${dataItem.md5}/get/` :
+                                dataItem.rawURL;
+                        }
                         return (
                             <LibraryItem
                                 description={dataItem.description}

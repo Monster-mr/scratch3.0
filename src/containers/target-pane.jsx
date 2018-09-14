@@ -1,6 +1,6 @@
 import bindAll from 'lodash.bindall';
 import React from 'react';
-
+import {setRestore} from '../reducers/restore-deletion';
 import {connect} from 'react-redux';
 
 import {
@@ -64,7 +64,11 @@ class TargetPane extends React.Component {
         this.props.vm.postSpriteInfo({y});
     }
     handleDeleteSprite (id) {
-        this.props.vm.deleteSprite(id);
+        const restoreFun = this.props.vm.deleteSprite(id);
+        this.props.dispatchUpdateRestore({
+            restoreFun: restoreFun,
+            deletedItem: 'Sprite'
+        });
     }
     handleDuplicateSprite (id) {
         this.props.vm.duplicateSprite(id);
@@ -152,6 +156,18 @@ class TargetPane extends React.Component {
                 this.props.vm.shareCostumeToTarget(dragInfo.index, targetId);
             } else if (targetId && dragInfo.dragType === DragConstants.SOUND) {
                 this.props.vm.shareSoundToTarget(dragInfo.index, targetId);
+            } else if (dragInfo.dragType === DragConstants.BACKPACK_COSTUME) {
+                // In scratch 2, this only creates a new sprite from the costume.
+                // We may be able to handle both kinds of drops, depending on where
+                // the drop happens. For now, just add the costume.
+                this.props.vm.addCostume(dragInfo.payload.body, {
+                    name: dragInfo.payload.name
+                }, targetId);
+            } else if (dragInfo.dragType === DragConstants.BACKPACK_SOUND) {
+                this.props.vm.addSound({
+                    md5: dragInfo.payload.body,
+                    name: dragInfo.payload.name
+                }, targetId);
             }
         }
     }
@@ -223,6 +239,9 @@ const mapDispatchToProps = dispatch => ({
     },
     onReceivedBlocks: receivedBlocks => {
         dispatch(setReceivedBlocks(receivedBlocks));
+    },
+    dispatchUpdateRestore: restoreState => {
+        dispatch(setRestore(restoreState));
     }
 });
 

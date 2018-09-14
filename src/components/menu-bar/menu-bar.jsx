@@ -14,7 +14,9 @@ import Menu from '../../containers/menu.jsx';
 import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectSaver from '../../containers/project-saver.jsx';
 import {openTipsLibrary} from '../../reducers/modals';
+import {openExampleLibrary} from '../../reducers/modals';
 import {setPlayer} from '../../reducers/mode';
+import DeletionRestorer from '../../containers/deletion-restorer.jsx';
 import {
     openFileMenu,
     closeFileMenu,
@@ -55,6 +57,11 @@ const ariaMessages = defineMessages({
         id: 'gui.menuBar.howToLibrary',
         defaultMessage: 'How-to Library',
         description: 'accessibility text for the how-to library button'
+    },
+    liZi:{
+        id: 'z',
+        defaultMessage: 'LiZi',
+        description: 'accessibility text for the example library button'
     }
 });
 
@@ -93,10 +100,11 @@ MenuBarItemTooltip.propTypes = {
     place: PropTypes.oneOf(['top', 'bottom', 'left', 'right'])
 };
 
-const MenuItemTooltip = ({id, children, className}) => (
+const MenuItemTooltip = ({id,isRtl, children, className}) => (
     <ComingSoonTooltip
         className={classNames(styles.comingSoon, className)}
-        place="right"
+        isRtl={isRtl}
+        place={isRtl ? 'left' : 'right'}
         tooltipClassName={styles.comingSoonTooltip}
         tooltipId={id}
     >
@@ -210,6 +218,7 @@ const MenuBar = props => {
                         <MenuBarMenu
                             open={props.fileMenuOpen}
                             onRequestClose={props.onRequestCloseFile}
+                            place={props.isRtl ? 'left' : 'right'}
                         >
                             <MenuItem id='Popup' onClick={props.togglePopup}>
                                 <FormattedMessage
@@ -252,24 +261,15 @@ const MenuBar = props => {
                                         onClick={loadProject}
                                         {...loadProps}
                                     >载入文件
-                                        {/*  <FormattedMessage
-                                        defaultMessage="Load from your computer"
-                                        description="Menu bar item for uploading a project from your computer"
-                                        id="gui.menuBar.uploadFromComputer"
-                                    />*/}
                                         {renderFileInput()}
                                     </MenuItem>
                                 )}</ProjectLoader>
                                 <ProjectSaver getInputValue={props.getInputValue}>{(saveProject, saveProps) => (
                                     <MenuItem
-                                        onClick={saveProject}
-                                        {...saveProps}
+                                       /* onClick={saveProject}
+                                        {...saveProps}*/
+                                        onClick={props.handleCloseFileMenuAndThen(saveProject)}
                                     >保存文件
-                                        {/*<FormattedMessage
-                                        defaultMessage="Save to your computer"
-                                        description="Menu bar item for downloading a project to your computer"
-                                        id="gui.menuBar.downloadToComputer"
-                                    />*/}
                                     </MenuItem>
                                 )}</ProjectSaver>
                             </MenuSection>
@@ -292,7 +292,16 @@ const MenuBar = props => {
                         <MenuBarMenu
                             open={props.editMenuOpen}
                             onRequestClose={props.onRequestCloseEdit}
+                            place={props.isRtl ? 'left' : 'right'}
                         >
+                            <DeletionRestorer>{(handleRestore, {restorable, deletedItem}) => ( //恢复
+                                <MenuItem
+                                    className={classNames({[styles.disabled]: !restorable})}
+                                    onClick={props.handleRestoreOption(handleRestore)}
+                                >
+                                    {props.restoreOptionMessage(deletedItem)}
+                                </MenuItem>
+                            )}</DeletionRestorer>
                             <MenuItem onClick={props.UndoStack}>{/*撤销props.UndoStack*/}
                                 <FormattedMessage
                                     defaultMessage="Undo"
@@ -307,35 +316,6 @@ const MenuBar = props => {
                                     id="gui.menuBar.redo"
                                 />
                             </MenuItem>
-                            {/*比上面代码多了一层包裹  <MenuItemTooltip id="undo">
-                        <MenuItem>
-                            <FormattedMessage
-                                defaultMessage="Undo"
-                                description="Menu bar item for undoing"
-                                id="gui.menuBar.undo"
-                            />
-                        </MenuItem>
-                    </MenuItemTooltip>
-                    <MenuItemTooltip id="redo">
-                        <MenuItem>
-                            <FormattedMessage
-                                defaultMessage="Redo"
-                                description="Menu bar item for redoing"
-                                id="gui.menuBar.redo"
-                            />
-                        </MenuItem>
-                    </MenuItemTooltip>*/}
-                            {/*          <MenuSection>
-                        <MenuItemTooltip id="turbo">
-                            <MenuItem>
-                                <FormattedMessage
-                                    defaultMessage="Turbo mode"
-                                    description="Menu bar item for toggling turbo mode"
-                                    id="gui.menuBar.turboMode"
-                                />
-                            </MenuItem>
-                        </MenuItemTooltip>
-                    </MenuSection>*/}
                         </MenuBarMenu>
                     </div>
 
@@ -404,9 +384,9 @@ const MenuBar = props => {
                 {/*</div>*/}
             </div>
             {/*fengedian*/}
-            <Divider className={classNames(styles.divider)}/>
+           {/* <Divider className={classNames(styles.divider)}/>*/}
             {/*输入框*/}
-            <div className={classNames(styles.menuBarItem)}>
+            <div className={classNames(styles.inputvalue, styles.menuBarItem)}>
                 <MenuBarItemTooltip id="title-field" enable={true}>
                     <input
                         onChange={(projectName) => props.onChange(projectName)}
@@ -460,45 +440,57 @@ const MenuBar = props => {
                 }
             </div>*/}
             {/*大的分享分割点 意见反馈和使用指南*/}
-            <div className={classNames(styles.menuBarItem, styles.feedbackButtonWrapper)}>
-                <a
-                    className={styles.feedbackLink}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    onClick={props.nodeMailer}
-                >
-                    <Button
-                        className={styles.feedbackButton}
-                        iconSrc={feedbackIcon}
+            <div className={classNames(styles.menufoot)}>
+                <div className={classNames(styles.menuBarItem)}>
+                    <a
+                        className={styles.feedbackLink}
+                        onClick={props.nodeMailer}
+                        rel="noopener noreferrer"
+                        target="_blank"
                     >
-                        <FormattedMessage
-                            defaultMessage="Give Feedback"
-                            description="Label for feedback form modal button"
-                            id="gui.menuBar.giveFeedback"
-                        />
-                    </Button>
-                </a>
-            </div>
-            <div className={styles.accountInfoWrapper}>
-                <div
-                    aria-label={props.intl.formatMessage(ariaMessages.howTo)}
-                    className={classNames(styles.menuBarItem)}
-                    onClick={props.onOpenTipLibrary}
-                >
-                    <Button
-                        className={classNames(styles.btn)}
+                        <Button
+                            className={styles.feedbackButton}
+                            iconSrc={feedbackIcon}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Give Feedback"
+                                description="Label for feedback form modal button"
+                                id="gui.menuBar.giveFeedback"
+                            />
+                        </Button>
+                    </a>
+                </div>
+                <div className={classNames(styles.accountInfoWrapper)}>
+                    <div
+                        aria-label={props.intl.formatMessage(ariaMessages.liZi)}
+                        className={classNames(styles.menuBarItem)}
+                        onClick={props.onOpenExampleLibrary}
                     >
-                        使用指南
-                    </Button>
-                    {/* <Button className={classNames(styles.btn)}>
+                        <Button className={classNames(styles.btn)}>
+                            例子
+                        </Button>
+                    </div>
+                </div>
+                <div className={classNames(styles.accountInfoWrapper)}>
+                    <div
+                        aria-label={props.intl.formatMessage(ariaMessages.howTo)}
+                        className={classNames(styles.menuBarItem)}
+                        onClick={props.onOpenTipLibrary}
+                    >
+                        <Button
+                            className={classNames(styles.btn)}
+                        >
+                            使用指南
+                        </Button>
+                        {/* <Button className={classNames(styles.btn)}>
                         使用指南
                     </Button>
                      <img
                     className={styles.helpIcon}
                     src={helpIcon}
                 />*/}
-                </div>
-               {/* <MenuBarItemTooltip id="mystuff">
+                    </div>
+                    {/*  <MenuBarItemTooltip id="mystuff">
                     <div
                         className={classNames(
                             styles.menuBarItem,
@@ -528,7 +520,7 @@ const MenuBar = props => {
                             src={profileIcon}
                         />
                         <span>
-                        {'scratch-cat' /* @todo username *!/
+                        'scratch-cat' @todo username
                     </span>
                         <img
                             className={styles.dropdownCaretIcon}
@@ -536,9 +528,11 @@ const MenuBar = props => {
                         />
                     </div>
                 </MenuBarItemTooltip>*/}
+                </div>
             </div>
+
         </Box>
-    );
+)
 };
 
     MenuBar.propTypes = {
@@ -556,6 +550,7 @@ const MenuBar = props => {
         onClickFile: PropTypes.func,
         onClickLanguage: PropTypes.func,
         onOpenTipLibrary: PropTypes.func,
+        onOpenExampleLibrary:PropTypes.func,
         onRequestCloseEdit: PropTypes.func,
         onRequestCloseFile: PropTypes.func,
         onRequestCloseLanguage: PropTypes.func,
@@ -571,11 +566,13 @@ const MenuBar = props => {
         //预加 还没reduxer
         // connecTion:connectMenuOpen(state), //预加
         editMenuOpen: editMenuOpen(state),
+        isRtl: state.locales.isRtl,
         languageMenuOpen: languageMenuOpen(state)
     });
 
     const mapDispatchToProps = dispatch => ({
         onOpenTipLibrary: () => dispatch(openTipsLibrary()),
+        onOpenExampleLibrary: () => dispatch(openExampleLibrary()),  //zbl 添加
         onClickFile: () => dispatch(openFileMenu()),
         onRequestCloseFile: () => dispatch(closeFileMenu()),
         onClickEdit: () => dispatch(openEditMenu()),

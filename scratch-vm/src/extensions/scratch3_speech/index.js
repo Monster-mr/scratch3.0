@@ -1,6 +1,7 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const Cast = require('../../util/cast');
 const BlockType = require('../../extension-support/block-type');
+const formatMessage = require('format-message');
 const log = require('../../util/log');
 const DiffMatchPatch = require('diff-match-patch');
 
@@ -81,7 +82,8 @@ class Scratch3SpeechBlocks {
         this._currentUtterance = '';
 
         /**
-         *  Similar to _currentUtterance, but set back to '' at the beginning of listening block.
+         *  Similar to _currentUtterance, but set back to '' at the beginning of listening block
+         *  and on green flag.
          *  Used to get the hat blocks to edge trigger.  In order to detect someone saying
          *  the same thing twice in two subsequent listen and wait blocks
          *  and still trigger the hat, we need this to go from
@@ -155,18 +157,18 @@ class Scratch3SpeechBlocks {
         this._audioPromise = null;
 
         /**
-         * Audio buffer for sound to indicate that listending has started.
-         * @type {bufferSourceNode}
+         * Player for sound to indicate that listending has started.
+         * @type {SoundPlayer}
          * @private
          */
-        this._startSoundBuffer = null;
+        this._startSoundPlayer = null;
 
         /**
-         * Audio buffer for sound to indicate that listending has ended.
-         * @type {bufferSourceNode}
+         * Player for for sound to indicate that listending has ended.
+         * @type {SoundPlayer}
          * @private
          */
-        this._endSoundBuffer = null;
+        this._endSoundPlayer = null;
 
 
         /**
@@ -187,6 +189,7 @@ class Scratch3SpeechBlocks {
 
 
         this.runtime.on('PROJECT_STOP_ALL', this._resetListening.bind(this));
+        this.runtime.on('PROJECT_START', this._resetEdgeTriggerUtterance.bind(this));
 
         // Load in the start and stop listening indicator sounds.
         this._loadUISounds();
@@ -198,13 +201,13 @@ class Scratch3SpeechBlocks {
      */
     _loadUISounds () {
         const startSoundBuffer = assetData['speech-rec-start.mp3'];
-        this._decodeSound(startSoundBuffer).then(buffer => {
-            this._startSoundBuffer = buffer;
+        this._decodeSound(startSoundBuffer).then(player => {
+            this._startSoundPlayer = player;
         });
 
         const endSoundBuffer = assetData['speech-rec-end.mp3'];
-        this._decodeSound(endSoundBuffer).then(buffer => {
-            this._endSoundBuffer = buffer;
+        this._decodeSound(endSoundBuffer).then(player => {
+            this._endSoundPlayer = player;
         });
     }
 
@@ -215,43 +218,39 @@ class Scratch3SpeechBlocks {
      * @private
      */
     _decodeSound (soundBuffer) {
-        const context = this.runtime.audioEngine && this.runtime.audioEngine.audioContext;
+        const engine = this.runtime.audioEngine;
 
-        if (!context) {
-            return Promise.reject(new Error('No Audio Context Detected'));
+        if (!engine) {
+            return Promise.reject(new Error('No Audio Engine Detected'));
         }
 
         // Check for newer promise-based API
-        if (context.decodeAudioData.length === 1) {
-            return context.decodeAudioData(soundBuffer);
-        } else { // eslint-disable-line no-else-return
-            // Fall back to callback API
-            return new Promise((resolve, reject) =>
-                context.decodeAudioData(soundBuffer,
-                    buffer => resolve(buffer),
-                    error => reject(error)
-                )
-            );
-        }
+        return engine.decodeSoundPlayer({data: {buffer: soundBuffer}});
     }
 
     /**
      * Play the given sound.
-     * @param {ArrayBuffer} buffer The audio buffer to play.
+     * @param {SoundPlayer} player The audio buffer to play.
      * @returns {Promise} A promise that resoloves when the sound is done playing.
      * @private
      */
-    _playSound (buffer) {
+    _playSound (player) {
         if (this.runtime.audioEngine === null) return;
-        const context = this.runtime.audioEngine.audioContext;
-        const bufferSource = context.createBufferSource();
-        bufferSource.buffer = buffer;
-        bufferSource.connect(this.runtime.audioEngine.input);
-        bufferSource.start();
+        if (player.isPlaying) {
+            // Take the internal player state and create a new player with it.
+            // `.play` does this internally but then instructs the sound to
+            // stop.
+            player.take();
+        }
+
+        const engine = this.runtime.audioEngine;
+        const chain = engine.createEffectChain();
+        player.connect(chain);
+        player.play();
         return new Promise(resolve => {
-            bufferSource.onended = () => {
+            player.once('stop', () => {
                 resolve();
-            };
+            });
         });
     }
 
@@ -299,6 +298,15 @@ class Scratch3SpeechBlocks {
     }
 
     /**
+     * Reset the utterance we look for in the when I hear hat block back to
+     * the empty string.
+     * @private
+     */
+    _resetEdgeTriggerUtterance () {
+        this._utteranceForEdgeTrigger = '';
+    }
+
+    /**
      * Close the connection to the socket server if it is open.
      * @private
      */
@@ -336,7 +344,9 @@ class Scratch3SpeechBlocks {
     _resolveSpeechPromises () {
         for (let i = 0; i < this._speechPromises.length; i++) {
             const resFn = this._speechPromises[i];
-            resFn();
+            // Boolean passed tells whether to play the end sound or not. Only play it for the first one, otherwise,
+            // we get the end sound played simultaneously which results in it being quite loud.
+            resFn(i === 0);
         }
         this._speechPromises = [];
     }
@@ -513,12 +523,7 @@ class Scratch3SpeechBlocks {
      * @private
      */
     _startListening () {
-        // If we've already setup the context, we can resume instead of doing all the setup again.
-        if (this._context) {
-            this._resumeListening();
-        } else {
-            this._initListening();
-        }
+        this._initListening();
         // Force the block to timeout if we don't get any results back/the user didn't say anything.
         this._speechTimeoutId = setTimeout(this._stopTranscription, listenAndWaitBlockTimeoutMs);
     }
@@ -548,25 +553,18 @@ class Scratch3SpeechBlocks {
      * @private
      */
     _initializeMicrophone () {
-        // Safari still needs a webkit prefix for audio context
-        this._context = new (window.AudioContext || window.webkitAudioContext)();
+        // Don't make a new context if we already made one.
+        if (!this._context) {
+            // Safari still needs a webkit prefix for audio context
+            this._context = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // In safari we have to call getUserMedia every time we want to listen. Other browsers allow
+        // you to reuse the mediaStream.  See #1202 for more context.
         this._audioPromise = navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: true,
-                channelCount: 1,
-                sampleRate: {
-                    ideal: 16000
-                },
-                sampleSize: 16
-            }
+            audio: true
         });
 
-        const tempContext = this._context;
-        this._audioPromise.then(micStream => {
-            const microphone = tempContext.createMediaStreamSource(micStream);
-            const analyser = tempContext.createAnalyser();
-            microphone.connect(analyser);
-        }).catch(e => {
+        this._audioPromise.then().catch(e => {
             log.error(`Problem connecting to microphone:  ${e}`);
         });
     }
@@ -688,29 +686,51 @@ class Scratch3SpeechBlocks {
     getInfo () {
         return {
             id: 'speech',
-            name: 'Google Speech',
+            name: formatMessage({
+                id: 'speech.extensionName',
+                default: 'Google Speech',
+                description: 'Name of extension that adds speech recognition blocks. Do Not translate Google.'
+            }),
             menuIconURI: menuIconURI,
             blockIconURI: iconURI,
             blocks: [
                 {
                     opcode: 'listenAndWait',
-                    text: 'Listen and Wait',
+                    text: formatMessage({
+                        id: 'speech.listenAndWait',
+                        default: 'listen and wait',
+                        // eslint-disable-next-line max-len
+                        description: 'Start listening to the microphone and wait for a result from the speech recognition system.'
+                    }),
                     blockType: BlockType.COMMAND
                 },
                 {
                     opcode: 'whenIHearHat',
-                    text: 'When I hear [PHRASE]',
+                    text: formatMessage({
+                        id: 'speech.whenIHear',
+                        default: 'when I hear [PHRASE]',
+                        // eslint-disable-next-line max-len
+                        description: 'Event that triggers when the text entered on the block is recognized by the speech recognition system.'
+                    }),
                     blockType: BlockType.HAT,
                     arguments: {
                         PHRASE: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'cat'
+                            defaultValue: formatMessage({
+                                id: 'speech.defaultWhenIHearValue',
+                                default: 'let\'s go',
+                                description: 'The default phrase/word that, when heard, triggers the event.'
+                            })
                         }
                     }
                 },
                 {
                     opcode: 'getSpeech',
-                    text: 'speech',
+                    text: formatMessage({
+                        id: 'speech.speechReporter',
+                        default: 'speech',
+                        description: 'Get the text of spoken words transcribed by the speech recognition system.'
+                    }),
                     blockType: BlockType.REPORTER
                 }
             ]
@@ -727,9 +747,16 @@ class Scratch3SpeechBlocks {
         // to be some lag between when the sound starts and when the socket message
         // callback is received. Perhaps we should play the sound after the socket is setup.
         // TODO: Question - Should we only play the sound if listening isn't already in progress?
-        return this._playSound(this._startSoundBuffer).then(() => {
+        return this._playSound(this._startSoundPlayer).then(() => {
             this._phraseList = this._scanBlocksForPhraseList();
-            this._utteranceForEdgeTrigger = '';
+            this._resetEdgeTriggerUtterance();
+            
+            const endSound = (shouldPlayEndSound => {
+                if (shouldPlayEndSound) {
+                    this._playSound(this._endSoundPlayer);
+                }
+            });
+
             const speechPromise = new Promise(resolve => {
                 const listeningInProgress = this._speechPromises.length > 0;
                 this._speechPromises.push(resolve);
@@ -737,7 +764,7 @@ class Scratch3SpeechBlocks {
                     this._startListening();
                 }
             });
-            return speechPromise.then(() => this._playSound(this._endSoundBuffer));
+            return speechPromise.then(endSound);
         });
     }
 

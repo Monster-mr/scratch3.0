@@ -15,7 +15,7 @@ const MODAL_SPRITE_LIBRARY = 'spriteLibrary';
 const MODAL_SOUND_RECORDER = 'soundRecorder';
 
 const MODAL_TIPS_LIBRARY = 'tipsLibrary';
-
+const MODAL_EXAMPLE_LIBRARY='exampleLibrary';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -28,7 +28,8 @@ const initialState = {
     [MODAL_SOUND_LIBRARY]: false,
     [MODAL_SPRITE_LIBRARY]: false,
     [MODAL_SOUND_RECORDER]: false,
-    [MODAL_TIPS_LIBRARY]: false
+    [MODAL_TIPS_LIBRARY]: false,
+    [MODAL_EXAMPLE_LIBRARY]:false
 };
 
 const reducer = function (state, action) {
@@ -102,6 +103,10 @@ const openTipsLibrary = function () {
     analytics.pageview('/modals/tips');
     return openModal(MODAL_TIPS_LIBRARY);
 };
+const openExampleLibrary=function () {
+    analytics.pageview('/modals/example');
+    return openModal(MODAL_EXAMPLE_LIBRARY);
+};
 const closeBackdropLibrary = function () {
     return closeModal(MODAL_BACKDROP_LIBRARY);
 };
@@ -135,6 +140,11 @@ const closeSoundRecorder = function () {
 const closeTipsLibrary = function () {
     return closeModal(MODAL_TIPS_LIBRARY);
 };
+const closeExampleLibrary=function () {
+    analytics.pageview('/modals/example');
+    return closeModal(MODAL_EXAMPLE_LIBRARY);
+}
+
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -149,6 +159,7 @@ export {
     openSpriteLibrary,
     openSoundRecorder,
     openTipsLibrary,
+    openExampleLibrary,
     closeBackdropLibrary,
     closeCameraCapture,
     closeCostumeLibrary,
@@ -159,5 +170,6 @@ export {
     closeSpriteLibrary,
     closeSoundLibrary,
     closeSoundRecorder,
-    closeTipsLibrary
+    closeTipsLibrary,
+    closeExampleLibrary
 };

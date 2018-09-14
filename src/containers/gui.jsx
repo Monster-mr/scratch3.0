@@ -5,6 +5,7 @@ import VM from '../../scratch-vm';
 import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import bindAll from 'lodash.bindall';
+import { FormattedMessage} from 'react-intl';
 //import defaultsDeep from 'lodash.defaultsdeep';
 //const shapeFromPropTypes = require('../lib/shape-from-prop-types');
 //import shapeFromPropTypes from '../lib/shape-from-prop-types.js';
@@ -14,6 +15,10 @@ import  KittenBlock  from '../../kittenblock-pc';
 import ArduinoPanel from './arduino-panel.jsx';
 import Blocks from './blocks.jsx';
 //import ScratchBlocks from '../../scratch-blocks';
+import {
+    closeFileMenu,
+    closeEditMenu,
+} from '../reducers/menus';
 import {
     activateTab,
     BLOCKS_TAB_INDEX,
@@ -37,7 +42,7 @@ class GUI extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, ['toggleArduinoPanel','toggelStage','translateCode','serialDevUpdate','refreshPort','selectPort','portConnected','portOnReadline','portClosed','sendCommonData','portReadLine','deviceQuery','clearConsole','consoleSend','togglePopup',
-            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","handleInputChange","timeTranslate","UndoStack","nodeMailer",]);
+            "onChange","reloadPlay","uploadProject","updateEditorInstance","openIno","appendLog","restoreFirmware","handleInputChange","timeTranslate","UndoStack","nodeMailer","handleRestoreOption","restoreOptionMessage","handleCloseFileMenuAndThen",]);
         this.consoleMsgBuff=[{msg: "Welcome to DCKJ", color: "green"}];
         this.editor;
         this.state = {
@@ -59,8 +64,47 @@ class GUI extends React.Component {
             timeWorkspace:null
         };
     }
-
-
+    handleCloseFileMenuAndThen (fn) {   //保存
+        return () => {
+            this.props.onRequestCloseFile();
+            fn();
+        };
+    }
+    handleRestoreOption (restoreFun) {  //恢复
+        return () => {
+            restoreFun();
+            this.props.onRequestCloseEdit();
+        };
+    }
+    restoreOptionMessage (deletedItem) {  //恢复
+        switch (deletedItem) {
+            case 'Sprite':
+                return (<FormattedMessage
+                    defaultMessage="复原删除的角色"
+                    description="Menu bar item for restoring the last deleted sprite."
+                    id="gui.menuBar.restoreSprite"
+                />);
+            case 'Sound':
+                return (<FormattedMessage
+                    defaultMessage="复原删除的声音"
+                    description="Menu bar item for restoring the last deleted sound."
+                    id="gui.menuBar.restoreSound"
+                />);
+            case 'Costume':
+                return (<FormattedMessage
+                    defaultMessage="复原删除的造型"
+                    description="Menu bar item for restoring the last deleted costume."
+                    id="gui.menuBar.restoreCostume"
+                />);
+            default: {
+                return (<FormattedMessage
+                    defaultMessage="复原"
+                    description="Menu bar item for restoring the last deleted item in its disabled state." /* eslint-disable-line max-len */
+                    id="gui.menuBar.restore"
+                />);
+            }
+        }
+    }
     timeTranslate() {
         if (this.state.translateChecked){
             const code = this.childCp.sb2cpp();
@@ -211,45 +255,6 @@ class GUI extends React.Component {
     UndoStack(){ //撤销
      this.childCp.UndoStacked(false);
     }
-   /* UndoStack (redo) {
-            var inputStack = redo ? this.redoStack_ : this.undoStack_;//当前状态
-            var outputStack = redo ? this.undoStack_ : this.redoStack_;//历史状态
-            var inputEvent = inputStack.pop();//执行方法，移除最后一个元素并返回给历史状态(撤销)
-        console.log(redo);
-        console.log(inputStack);
-        console.log(outputStack);
-        console.log(inputEvent);
-            if (!inputEvent) {
-                return;
-            }
-            var events = [inputEvent];
-            // Do another undo/redo if the next one is of the same group.
-            while (inputStack.length && inputEvent.group &&
-            inputEvent.group == inputStack[inputStack.length - 1].group) {
-                events.push(inputStack.pop());//events是移除的那个动作的状态
-            }
-            // Push these popped events on the opposite stack.
-            for (var i = 0, event; event = events[i]; i++) {
-                outputStack.push(event);//outputStack为直接添加移除状态的
-            }
-            events = Blockly.Events.filter(events, redo);
-            Blockly.Events.recordUndo = false;
-            if (Blockly.selected) {
-                Blockly.Events.disable();
-                try {
-                    Blockly.selected.unselect();
-                } finally {
-                    Blockly.Events.enable();
-                }
-            }
-            try {
-                for (var i = 0, event; event = events[i]; i++) {
-                    event.run(redo);
-                }
-            } finally {
-                Blockly.Events.recordUndo = true;
-            }
-    }*/
     updateEditorInstance(editor){
         this.editor = editor.editor;
     }
@@ -299,6 +304,9 @@ class GUI extends React.Component {
         return (
             <GUIComponent
                 loading={fetchingProject || this.state.loading || loadingStateVisible}
+                handleRestoreOption={this.handleRestoreOption}  //恢复
+                restoreOptionMessage={this.restoreOptionMessage}//恢复
+                handleCloseFileMenuAndThen={this.handleCloseFileMenuAndThen}
                 toggleArduinoPanel={this.toggleArduinoPanel}
                 clearConsole={this.clearConsole}//zbl
                 consoleSend={this.consoleSend}//zbl
@@ -439,10 +447,13 @@ const mapStateToProps = state => ({
         state.scratchGui.targets.stage.id === state.scratchGui.targets.editingTarget
     ),
     soundsTabVisible: state.scratchGui.editorTab.activeTabIndex === SOUNDS_TAB_INDEX,
-    tipsLibraryVisible: state.scratchGui.modals.tipsLibrary
+    tipsLibraryVisible: state.scratchGui.modals.tipsLibrary,
+    exampleLibraryVisible:state.scratchGui.modals.exampleLibrary
 });
 
 const mapDispatchToProps = dispatch => ({
+    onRequestCloseFile: () => dispatch(closeFileMenu()),
+    onRequestCloseEdit: () => dispatch(closeEditMenu()),
     onExtensionButtonClick: () => dispatch(openExtensionLibrary()),
     onActivateTab: tab => dispatch(activateTab(tab)),
     onActivateCostumesTab: () => dispatch(activateTab(COSTUMES_TAB_INDEX)),

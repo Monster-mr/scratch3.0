@@ -24,6 +24,7 @@ const {deserializeCostume, deserializeSound} = require('./deserialize-assets.js'
 
 // Constants used during deserialization of an SB2 file
 const CORE_EXTENSIONS = [
+    'arduino',
     'argument',
     'control',
     'data',
@@ -122,7 +123,7 @@ const flatten = function (blocks) {
  * which block they should attach to.
  * @param {int} commentIndex The current index of the top block in this list if it were in a flattened
  * list of all blocks for the target
- * @return {[Array.<object>, int]} Tuple where first item is the Scratch VM-format block list, and
+ * @return {Array<Array.<object>|int>} Tuple where first item is the Scratch VM-format block list, and
  * second item is the updated comment index
  */
 const parseBlockList = function (blockList, addBroadcastMsg, getVariableId, extensions, comments, commentIndex) {
@@ -137,7 +138,7 @@ const parseBlockList = function (blockList, addBroadcastMsg, getVariableId, exte
         // Update commentIndex
         commentIndex = parsedBlockAndComments[1];
 
-        if (typeof parsedBlock === 'undefined') continue;
+        if (!parsedBlock) continue;
         if (previousBlock) {
             parsedBlock.parent = previousBlock.id;
             previousBlock.next = parsedBlock.id;
@@ -506,6 +507,22 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip)
         parseScripts(object.scripts, blocks, addBroadcastMsg, getVariableId, extensions, blockComments);
     }
 
+    // If there are any comments referring to a numerical block ID, make them
+    // workspace comments. These are comments that were originally created as
+    // block comments, detached from the block, and then had the associated
+    // block deleted.
+    // These comments should be imported as workspace comments
+    // by making their blockIDs (which currently refer to non-existing blocks)
+    // null (See #1452).
+    for (const commentIndex in blockComments) {
+        const currBlockComments = blockComments[commentIndex];
+        currBlockComments.forEach(c => {
+            if (typeof c.blockId === 'number') {
+                c.blockId = null;
+            }
+        });
+    }
+
     // Update stage specific blocks (e.g. sprite clicked <=> stage clicked)
     blocks.updateTargetSpecificBlocks(topLevel); // topLevel = isStage
 
@@ -567,6 +584,12 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip)
                 target.videoState = RenderedTarget.VIDEO_STATE.ON;
             }
         }
+    }
+    if (object.hasOwnProperty('indexInLibrary')) {
+        // Temporarily store the 'indexInLibrary' property from the sb2 file
+        // so that we can correctly order sprites in the target pane.
+        // This will be deleted after we are done parsing and ordering the targets list.
+        target.targetPaneOrder = object.indexInLibrary;
     }
 
     target.isStage = topLevel;
@@ -652,6 +675,21 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip)
     );
 };
 
+const reorderParsedTargets = function (targets) {
+    // Reorder parsed targets based on the temporary targetPaneOrder property
+    // and then delete it.
+
+    targets.sort((a, b) => a.targetPaneOrder - b.targetPaneOrder);
+
+    // Delete the temporary target pane ordering since we shouldn't need it anymore.
+    targets.forEach(t => {
+        delete t.targetPaneOrder;
+    });
+
+    return targets;
+};
+
+
 /**
  * Top-level handler. Parse provided JSON,
  * and process the top-level object (the stage object).
@@ -667,6 +705,7 @@ const sb2import = function (json, runtime, optForceSprite, zip) {
         extensionURLs: new Map()
     };
     return parseScratchObject(json, runtime, extensions, !optForceSprite, zip)
+        .then(reorderParsedTargets)
         .then(targets => ({
             targets,
             extensions
@@ -702,13 +741,24 @@ const specMapBlock = function (block) {
  * which block they should attach to.
  * @param {int} commentIndex The comment index for the block to be parsed if it were in a flattened
  * list of all blocks for the target
- * @return {[object, int]} Tuple where first item is the Scratch VM-format block (or null if unsupported object),
+ * @return {Array.<object|int>} Tuple where first item is the Scratch VM-format block (or null if unsupported object),
  * and second item is the updated comment index (after this block and its children are parsed)
  */
 const parseBlock = function (sb2block, addBroadcastMsg, getVariableId, extensions, comments, commentIndex) {
+    const commentsForParsedBlock = (comments && typeof commentIndex === 'number' && !isNaN(commentIndex)) ?
+        comments[commentIndex] : null;
     const blockMetadata = specMapBlock(sb2block);
     if (!blockMetadata) {
-        return;
+        // No block opcode found, exclude this block, increment the commentIndex,
+        // make all block comments into workspace comments and send them to zero/zero
+        // to prevent serialization issues.
+        if (commentsForParsedBlock) {
+            commentsForParsedBlock.forEach(comment => {
+                comment.blockId = null;
+                comment.x = comment.y = 0;
+            });
+        }
+        return [null, commentIndex + 1];
     }
     const oldOpcode = sb2block[0];
 
@@ -731,15 +781,18 @@ const parseBlock = function (sb2block, addBroadcastMsg, getVariableId, extension
     };
 
     // Attach any comments to this block..
-    const commentsForParsedBlock = (comments && typeof commentIndex === 'number' && !isNaN(commentIndex)) ?
-        comments[commentIndex] : null;
     if (commentsForParsedBlock) {
-        // TODO currently only attaching the last comment to the block if there are multiple...
-        // not sure what to do here.. concatenate all the messages in all the comments and only
-        // keep one around?
+        // Attach only the last comment to the block, make all others workspace comments
         activeBlock.comment = commentsForParsedBlock[commentsForParsedBlock.length - 1].id;
         commentsForParsedBlock.forEach(comment => {
-            comment.blockId = activeBlock.id;
+            if (comment.id === activeBlock.comment) {
+                comment.blockId = activeBlock.id;
+            } else {
+                // All other comments don't get a block ID and are sent back to zero.
+                // This is important, because if they have `null` x/y, serialization breaks.
+                comment.blockId = null;
+                comment.x = comment.y = 0;
+            }
         });
     }
     commentIndex++;
@@ -780,6 +833,10 @@ const parseBlock = function (sb2block, addBroadcastMsg, getVariableId, extension
                     // Update commentIndex
                     commentIndex = parsedBlockDesc[1];
                 }
+                // Check if innerBlocks is an empty list.
+                // This indicates that all the inner blocks from the sb2 have
+                // unknown opcodes and have been skipped.
+                if (innerBlocks.length === 0) continue;
                 let previousBlock = null;
                 for (let j = 0; j < innerBlocks.length; j++) {
                     if (j === 0) {
